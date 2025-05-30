@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - נחובר ל-Clerk
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique // Clerk User ID
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  customers Customer[]
+  invoices  Invoice[]
+  settings  UserSettings?
+
+  @@map("users")
+}
+
+// Customer model
+model Customer {
+  id        String   @id @default(cuid())
+  userId    String   // Foreign key to User
+  name      String
+  email     String
+  phone     String?
+  address   String?
+  taxId     String?  // מספר עוסק מורשה
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoices Invoice[]
+
+  // Indexes
+  @@index([userId])
+  @@index([email])
+  @@map("customers")
+}
+
+// Invoice model
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  userId        String        // Foreign key to User
+  customerId    String        // Foreign key to Customer
+  issueDate     DateTime      @default(now())
+  dueDate       DateTime
+  status        InvoiceStatus @default(DRAFT)
+  subtotal      Decimal       @db.Decimal(10, 2)
+  tax           Decimal       @db.Decimal(10, 2) @default(0)
+  discount      Decimal       @db.Decimal(10, 2) @default(0)
+  total         Decimal       @db.Decimal(10, 2)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items    InvoiceItem[]
+
+  // Indexes
+  @@index([userId])
+  @@index([customerId])
+  @@index([status])
+  @@index([issueDate])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+// Invoice Item model
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String  // Foreign key to Invoice
+  description String
+  quantity    Decimal @db.Decimal(10, 2)
+  unitPrice   Decimal @db.Decimal(10, 2)
+  total       Decimal @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+// User Settings model
+model UserSettings {
+  id                String   @id @default(cuid())
+  userId            String   @unique // Foreign key to User
+  businessName      String?
+  businessAddress   String?
+  businessPhone     String?
+  businessEmail     String?
+  taxRate           Decimal  @db.Decimal(5, 2) @default(17) // Default 17% VAT in Israel
+  currency          String   @default("ILS")
+  invoicePrefix     String   @default("INV")
+  nextInvoiceNumber Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+// Enums
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
