@@ -53,7 +53,7 @@ export function InvoiceForm({
   title = invoice ? 'Edit Invoice' : 'Create New Invoice',
   preSelectedCustomerId
 }: InvoiceFormProps) {
-  const [taxRate] = useState(17) // Default Israeli VAT rate
+  const [taxRate] = useState() // Default Israeli VAT rate
   const { customers } = useCustomers({ limit: 100 }) // Get all customers for dropdown
 
   const {
@@ -388,7 +388,7 @@ export function InvoiceForm({
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span>Tax ({taxRate}%):</span>
+                  {taxRate && <span>Tax ({taxRate}%):</span>}
                   <span>{formatCurrency(calculations.tax)}</span>
                 </div>
                 <Separator />

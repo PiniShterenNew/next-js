@@ -4,12 +4,13 @@ import { db } from '@/lib/db'
 import { invoiceSchema } from '@/lib/validations'
 import { ApiResponse, Invoice, InvoiceStatus } from '@/types'
 import { generateInvoiceNumber, calculateInvoiceTotal } from '@/lib/utils'
+import { NotificationService } from '@/lib/notification-service'
 
 // GET /api/invoices - קבלת כל החשבוניות של המשתמש
 export async function GET(request: NextRequest) {
   try {
     const { userId: clerkId } = await auth()
-    
+
     if (!clerkId) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' } as ApiResponse,
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
 
     // סינון לפי סטטוס
     if (status && status !== 'all') {
-      const statusArray = status.split(',').filter(s => 
+      const statusArray = status.split(',').filter(s =>
         Object.values(InvoiceStatus).includes(s as InvoiceStatus)
       )
       if (statusArray.length > 0) {
@@ -104,9 +105,9 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching invoices:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch invoices' 
+      {
+        success: false,
+        error: 'Failed to fetch invoices'
       } as ApiResponse,
       { status: 500 }
     )
@@ -117,7 +118,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { userId: clerkId } = await auth()
-    
+
     if (!clerkId) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' } as ApiResponse,
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    
+
     if (typeof body.dueDate === 'string') {
       body.dueDate = new Date(body.dueDate)
     }
@@ -180,16 +181,16 @@ export async function POST(request: NextRequest) {
     const subtotal = validatedData.items.reduce(
       (sum, item) => sum + (item.quantity * item.unitPrice), 0
     )
-    
+
     const totals = calculateInvoiceTotal(
-      subtotal, 
-      Number(settings.taxRate), 
+      subtotal,
+      Number(settings.taxRate),
       validatedData.discount || 0
     )
 
     // יצירת מספר חשבונית
     const invoiceNumber = generateInvoiceNumber(
-      settings.invoicePrefix, 
+      settings.invoicePrefix,
       settings.nextInvoiceNumber
     )
 
@@ -238,34 +239,44 @@ export async function POST(request: NextRequest) {
       return newInvoice
     })
 
+
+
+    // יצירת התראה לחשבונית חדשה
+    try {
+      await NotificationService.notifyInvoiceCreated(invoice)
+    } catch (error) {
+      console.error('Failed to create notification:', error)
+      // לא נרצה שכשל ביצירת התראה יפסיק את יצירת החשבונית
+    }
+
     return NextResponse.json(
-      { 
-        success: true, 
+      {
+        success: true,
         data: invoice,
-        message: 'Invoice created successfully' 
+        message: 'Invoice created successfully'
       } as ApiResponse<Invoice>,
       { status: 201 }
     )
 
   } catch (error) {
     console.error('Error creating invoice:', error)
-    
+
     // Zod validation errors
     if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Invalid data provided',
-          details: error 
+          details: error
         } as ApiResponse,
         { status: 400 }
       )
     }
 
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to create invoice' 
+      {
+        success: false,
+        error: 'Failed to create invoice'
       } as ApiResponse,
       { status: 500 }
     )

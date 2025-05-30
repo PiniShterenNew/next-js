@@ -23,6 +23,7 @@ model User {
 
   // Relations
   customers Customer[]
+  notifications Notification[]
   invoices  Invoice[]
   settings  UserSettings?
 
@@ -101,6 +102,15 @@ model InvoiceItem {
   @@map("invoice_items")
 }
 
+// Enums
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
 // User Settings model
 model UserSettings {
   id                String   @id @default(cuid())
@@ -122,11 +132,30 @@ model UserSettings {
   @@map("user_settings")
 }
 
-// Enums
-enum InvoiceStatus {
-  DRAFT
-  SENT
-  PAID
-  OVERDUE
-  CANCELLED
+// Notification model
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String           // למי ההתראה
+  type        NotificationType // סוג ההתראה
+  title       String           // כותרת
+  message     String           // תוכן
+  data        Json?            // מידע נוסף (invoiceId וכו')
+  read        Boolean          @default(false)
+  actionUrl   String?          // קישור לפעולה
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INVOICE_CREATED
+  INVOICE_OVERDUE
+  INVOICE_PAID
+  PAYMENT_RECEIVED
+  REMINDER
 }

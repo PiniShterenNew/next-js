@@ -1,3 +1,4 @@
+// components/layout/header.tsx
 'use client'
 
 import { UserButton, useUser } from '@clerk/nextjs'
@@ -10,9 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
-import { Bell, Search, Plus } from 'lucide-react'
+import { Search, Plus } from 'lucide-react'
 import Link from 'next/link'
+import { NotificationsDropdown } from './notifications-dropdown'
 
 export function Header() {
   const { user } = useUser()
@@ -61,41 +62,7 @@ export function Header() {
           </DropdownMenu>
 
           {/* Notifications */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="w-4 h-4" />
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs p-0"
-                >
-                  3
-                </Badge>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
-              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <div className="space-y-2 p-2">
-                <div className="p-3 text-sm bg-accent/50 rounded-lg">
-                  <p className="font-medium">Overdue Invoice</p>
-                  <p className="text-muted-foreground">Invoice #001 is 5 days overdue</p>
-                </div>
-                <div className="p-3 text-sm bg-accent/50 rounded-lg">
-                  <p className="font-medium">Payment Received</p>
-                  <p className="text-muted-foreground">Invoice #002 has been paid</p>
-                </div>
-                <div className="p-3 text-sm bg-accent/50 rounded-lg">
-                  <p className="font-medium">New Customer</p>
-                  <p className="text-muted-foreground">John Doe was added to customers</p>
-                </div>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="justify-center">
-                View all notifications
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <NotificationsDropdown />
 
           {/* User Profile */}
           <div className="flex items-center space-x-3">

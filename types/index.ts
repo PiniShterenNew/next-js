@@ -208,3 +208,46 @@ export interface ApiError {
   code?: string;
   details?: ValidationError[];
 }
+
+
+// Notification types
+export interface Notification {
+  id: string
+  userId: string
+  type: NotificationType
+  title: string
+  message: string
+  data?: any
+  read: boolean
+  actionUrl?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export enum NotificationType {
+  INVOICE_CREATED = 'INVOICE_CREATED',
+  INVOICE_OVERDUE = 'INVOICE_OVERDUE', 
+  INVOICE_PAID = 'INVOICE_PAID',
+  PAYMENT_RECEIVED = 'PAYMENT_RECEIVED',
+  REMINDER = 'REMINDER'
+}
+
+export interface CreateNotificationData {
+  userId: string
+  type: NotificationType
+  title: string
+  message: string
+  data?: any
+  actionUrl?: string
+}
+
+// Notification API responses
+export interface NotificationsResponse extends ApiResponse<Notification[]> {
+  unreadCount: number
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
