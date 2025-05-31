@@ -1,3 +1,4 @@
+// components/layout/sidebar.tsx - עדכון עם התראות
 'use client'
 
 import { useState } from 'react'
@@ -5,7 +6,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { useUnreadNotificationsCount } from '@/hooks/use-notifications'
 import { 
   LayoutDashboard, 
   FileText, 
@@ -13,7 +16,8 @@ import {
   Settings, 
   Menu,
   Receipt,
-  Plus
+  Plus,
+  Bell
 } from 'lucide-react'
 
 const sidebarItems = [
@@ -57,6 +61,11 @@ const sidebarItems = [
     ],
   },
   {
+    title: 'Notifications',
+    href: '/dashboard/notifications',
+    icon: Bell,
+  },
+  {
     title: 'Settings',
     href: '/dashboard/settings',
     icon: Settings,
@@ -66,6 +75,7 @@ const sidebarItems = [
 export function Sidebar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const { unreadCount } = useUnreadNotificationsCount()
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -86,6 +96,7 @@ export function Sidebar() {
             key={item.href} 
             item={item} 
             pathname={pathname}
+            unreadCount={item.title === 'Notifications' ? unreadCount : undefined}
             onItemClick={() => setIsOpen(false)}
           />
         ))}
@@ -129,10 +140,11 @@ export function Sidebar() {
 interface SidebarItemProps {
   item: typeof sidebarItems[0]
   pathname: string
+  unreadCount?: number
   onItemClick: () => void
 }
 
-function SidebarItem({ item, pathname, onItemClick }: SidebarItemProps) {
+function SidebarItem({ item, pathname, unreadCount, onItemClick }: SidebarItemProps) {
   const [isExpanded, setIsExpanded] = useState(
     item.children ? item.children.some(child => pathname === child.href) : false
   )
@@ -193,14 +205,21 @@ function SidebarItem({ item, pathname, onItemClick }: SidebarItemProps) {
       href={item.href}
       onClick={onItemClick}
       className={cn(
-        "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+        "flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors",
         pathname === item.href
           ? "bg-primary text-primary-foreground"
           : "text-muted-foreground hover:text-foreground hover:bg-accent"
       )}
     >
-      <item.icon className="w-4 h-4" />
-      <span>{item.title}</span>
+      <div className="flex items-center space-x-3">
+        <item.icon className="w-4 h-4" />
+        <span>{item.title}</span>
+      </div>
+      {unreadCount && unreadCount > 0 && (
+        <Badge variant="destructive" className="text-xs">
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </Badge>
+      )}
     </Link>
   )
 }

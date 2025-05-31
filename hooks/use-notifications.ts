@@ -1,4 +1,4 @@
-// hooks/use-notifications.ts
+// hooks/use-notifications.ts - תיקון
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -56,7 +56,7 @@ export function useNotifications({
   page = 1,
   limit = 20,
   unreadOnly = false,
-  polling = true,
+  polling = false, // השנתי לfalse כי אנחנו לא רוצים polling אוטומטי
   pollingInterval = 60000 // דקה אחת
 }: UseNotificationsOptions = {}): UseNotificationsReturn {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -229,7 +229,7 @@ export function useNotifications({
     fetchNotifications()
   }, [fetchNotifications])
 
-  // Polling for new notifications
+  // Polling for new notifications (רק אם מפורש מבוקש)
   useEffect(() => {
     if (!polling) return
 
@@ -324,8 +324,8 @@ export function useUnreadNotificationsCount() {
   useEffect(() => {
     fetchUnreadCount()
     
-    // עדכון כל דקה
-    const interval = setInterval(fetchUnreadCount, 60000)
+    // עדכון כל 2 דקות (פחות אגרסיבי)
+    const interval = setInterval(fetchUnreadCount, 120000)
     return () => clearInterval(interval)
   }, [fetchUnreadCount])
 

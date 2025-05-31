@@ -1,8 +1,10 @@
+// app/api/invoices/[id]/status/route.ts - תיקון והוספת התראות
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { z } from 'zod'
 import { ApiResponse, InvoiceStatus } from '@/types'
+import { NotificationService } from '@/lib/notification-service'
 
 interface RouteParams {
   params: {
@@ -22,10 +24,11 @@ const statusUpdateSchema = z.object({
 
 // PATCH /api/invoices/[id]/status - עדכון סטטוס חשבונית
 export async function PATCH(
-request: NextRequest, context: { params: { id: string } }
+  request: NextRequest, 
+  context: { params: { id: string } }
 ) {
   try {
-         const { id } = context.params;
+    const { id } = context.params
     const { userId: clerkId } = await auth()
     
     if (!clerkId) {
@@ -54,6 +57,15 @@ request: NextRequest, context: { params: { id: string } }
       where: {
         id: id,
         userId: user.id,
+      },
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          }
+        }
       }
     })
 
@@ -111,6 +123,24 @@ request: NextRequest, context: { params: { id: string } }
         items: true,
       }
     })
+
+    // יצירת התראות לפי הסטטוס החדש
+    try {
+      if (newStatus === InvoiceStatus.PAID && currentStatus !== InvoiceStatus.PAID) {
+        await NotificationService.notifyInvoicePaid({
+          ...updatedInvoice,
+          userId: user.id
+        })
+      } else if (newStatus === InvoiceStatus.OVERDUE && currentStatus !== InvoiceStatus.OVERDUE) {
+        await NotificationService.notifyInvoiceOverdue({
+          ...updatedInvoice,
+          userId: user.id
+        })
+      }
+    } catch (error) {
+      console.error('Failed to create status notification:', error)
+      // ממשיכים גם אם יצירת ההתראה נכשלה
+    }
 
     // הודעה מותאמת לפי הסטטוס החדש
     const statusMessages = {

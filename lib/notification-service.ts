@@ -1,4 +1,4 @@
-// lib/notification-service.ts
+// lib/notification-service.ts - תיקון
 import { db } from '@/lib/db'
 import { NotificationType } from '@/types'
 
@@ -29,10 +29,10 @@ export class NotificationService {
         }
       })
 
-      console.log(`Notification created: ${notification.id} for user: ${data.userId}`)
+      console.log(`✅ Notification created: ${notification.id} for user: ${data.userId}`)
       return notification
     } catch (error) {
-      console.error('Failed to create notification:', error)
+      console.error('❌ Failed to create notification:', error)
       throw error
     }
   }
@@ -45,18 +45,18 @@ export class NotificationService {
       await this.createNotification({
         userId: invoice.userId,
         type: NotificationType.INVOICE_CREATED,
-        title: 'חשבונית חדשה נוצרה',
-        message: `חשבונית ${invoice.invoiceNumber} נוצרה בהצלחה עבור ${invoice.customer?.name}`,
+        title: 'Invoice Created Successfully',
+        message: `Invoice ${invoice.invoiceNumber} has been created for ${invoice.customer?.name || 'customer'}`,
         data: {
           invoiceId: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
           customerName: invoice.customer?.name,
-          amount: invoice.total
+          amount: Number(invoice.total)
         },
         actionUrl: `/dashboard/invoices/${invoice.id}`
       })
     } catch (error) {
-      console.error('Failed to create invoice notification:', error)
+      console.error('❌ Failed to create invoice notification:', error)
     }
   }
 
@@ -68,18 +68,21 @@ export class NotificationService {
       await this.createNotification({
         userId: invoice.userId,
         type: NotificationType.INVOICE_PAID,
-        title: 'חשבונית שולמה! 🎉',
-        message: `חשבונית ${invoice.invoiceNumber} שולמה בסך ${invoice.total}₪`,
+        title: 'Payment Received! 🎉',
+        message: `Invoice ${invoice.invoiceNumber} has been paid - ${new Intl.NumberFormat('he-IL', {
+          style: 'currency',
+          currency: 'ILS',
+        }).format(Number(invoice.total))}`,
         data: {
           invoiceId: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
           customerName: invoice.customer?.name,
-          amount: invoice.total
+          amount: Number(invoice.total)
         },
         actionUrl: `/dashboard/invoices/${invoice.id}`
       })
     } catch (error) {
-      console.error('Failed to create payment notification:', error)
+      console.error('❌ Failed to create payment notification:', error)
     }
   }
 
@@ -88,22 +91,26 @@ export class NotificationService {
    */
   static async notifyInvoiceOverdue(invoice: any) {
     try {
+      const daysPastDue = Math.floor(
+        (new Date().getTime() - new Date(invoice.dueDate).getTime()) / (1000 * 3600 * 24)
+      )
+
       await this.createNotification({
         userId: invoice.userId,
         type: NotificationType.INVOICE_OVERDUE,
-        title: 'חשבונית עברה פירעון ⚠️',
-        message: `חשבונית ${invoice.invoiceNumber} עברה את מועד הפירעון`,
+        title: 'Invoice Overdue ⚠️',
+        message: `Invoice ${invoice.invoiceNumber} is ${daysPastDue} days overdue`,
         data: {
           invoiceId: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
           customerName: invoice.customer?.name,
-          amount: invoice.total,
-          daysPastDue: Math.floor((new Date().getTime() - new Date(invoice.dueDate).getTime()) / (1000 * 3600 * 24))
+          amount: Number(invoice.total),
+          daysPastDue
         },
         actionUrl: `/dashboard/invoices/${invoice.id}`
       })
     } catch (error) {
-      console.error('Failed to create overdue notification:', error)
+      console.error('❌ Failed to create overdue notification:', error)
     }
   }
 
@@ -115,20 +122,20 @@ export class NotificationService {
       await this.createNotification({
         userId: invoice.userId,
         type: NotificationType.REMINDER,
-        title: 'תזכורת: חשבונית קרובה לפירעון',
-        message: `חשבונית ${invoice.invoiceNumber} תיפרע בעוד ${daysBefore} ימים`,
+        title: 'Invoice Due Soon',
+        message: `Invoice ${invoice.invoiceNumber} is due in ${daysBefore} days`,
         data: {
           invoiceId: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
           customerName: invoice.customer?.name,
-          amount: invoice.total,
+          amount: Number(invoice.total),
           dueDate: invoice.dueDate,
           daysBefore
         },
         actionUrl: `/dashboard/invoices/${invoice.id}`
       })
     } catch (error) {
-      console.error('Failed to create reminder notification:', error)
+      console.error('❌ Failed to create reminder notification:', error)
     }
   }
 
@@ -159,7 +166,7 @@ export class NotificationService {
         }
       })
 
-      console.log(`Found ${overdueInvoices.length} overdue invoices`)
+      console.log(`🔍 Found ${overdueInvoices.length} overdue invoices`)
 
       // עדכון סטטוס ויצירת התראות
       for (const invoice of overdueInvoices) {
@@ -170,12 +177,15 @@ export class NotificationService {
         })
 
         // יצירת התראה
-        await this.notifyInvoiceOverdue(invoice)
+        await this.notifyInvoiceOverdue({
+          ...invoice,
+          userId: invoice.userId
+        })
       }
 
       return overdueInvoices.length
     } catch (error) {
-      console.error('Failed to check overdue invoices:', error)
+      console.error('❌ Failed to check overdue invoices:', error)
       throw error
     }
   }
@@ -211,19 +221,22 @@ export class NotificationService {
         }
       })
 
-      console.log(`Found ${upcomingInvoices.length} upcoming invoices`)
+      console.log(`📅 Found ${upcomingInvoices.length} upcoming invoices`)
 
       for (const invoice of upcomingInvoices) {
         const daysUntilDue = Math.ceil(
           (new Date(invoice.dueDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24)
         )
         
-        await this.notifyInvoiceReminder(invoice, daysUntilDue)
+        await this.notifyInvoiceReminder({
+          ...invoice,
+          userId: invoice.userId
+        }, daysUntilDue)
       }
 
       return upcomingInvoices.length
     } catch (error) {
-      console.error('Failed to send upcoming reminders:', error)
+      console.error('❌ Failed to send upcoming reminders:', error)
       throw error
     }
   }
@@ -245,10 +258,10 @@ export class NotificationService {
         }
       })
 
-      console.log(`Deleted ${result.count} old notifications`)
+      console.log(`🧹 Deleted ${result.count} old notifications`)
       return result.count
     } catch (error) {
-      console.error('Failed to cleanup old notifications:', error)
+      console.error('❌ Failed to cleanup old notifications:', error)
       throw error
     }
   }

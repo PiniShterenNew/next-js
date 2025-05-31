@@ -1,9 +1,11 @@
+// app/dashboard/invoices/[id]/page.tsx - הצגת חשבונית עם הגדרות
 'use client'
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useInvoice, useInvoices } from '@/hooks/use-invoices'
+import { useSettings } from '@/hooks/use-settings'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -45,7 +47,8 @@ import {
   XCircle,
   Download,
   Copy,
-  Users
+  Users,
+  Loader2
 } from 'lucide-react'
 import { formatDate, formatCurrency, getInvoiceStatusColor, getInvoiceStatusText } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -59,6 +62,7 @@ export default function InvoiceDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   
   const { invoice, loading, error, refetch } = useInvoice(invoiceId)
+  const { settings, loading: settingsLoading } = useSettings()
   const { deleteInvoice, updateInvoiceStatus } = useInvoices()
 
   const handleDeleteInvoice = async () => {
@@ -84,7 +88,17 @@ export default function InvoiceDetailPage() {
     }
   }
 
-  if (loading) {
+  // פונקציה לעיצוב המטבע לפי ההגדרות
+  const formatCurrencyWithSettings = (amount: number) => {
+    if (!settings) return formatCurrency(amount) // fallback
+    
+    return new Intl.NumberFormat('he-IL', {
+      style: 'currency',
+      currency: settings.currency,
+    }).format(amount)
+  }
+
+  if (loading || settingsLoading) {
     return <InvoiceDetailSkeleton />
   }
 
@@ -220,6 +234,43 @@ export default function InvoiceDetailPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Invoice Content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Business Information - מוצג רק אם יש הגדרות עסק */}
+          {settings && (settings.businessName || settings.businessAddress || settings.businessEmail) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>From</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {settings.businessName && (
+                    <h3 className="text-lg font-semibold">{settings.businessName}</h3>
+                  )}
+                  
+                  {settings.businessEmail && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      <span>{settings.businessEmail}</span>
+                    </div>
+                  )}
+                  
+                  {settings.businessPhone && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <span>{settings.businessPhone}</span>
+                    </div>
+                  )}
+                  
+                  {settings.businessAddress && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <span>{settings.businessAddress}</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Customer Information */}
           <Card>
             <CardHeader>
@@ -285,10 +336,10 @@ export default function InvoiceDetailPage() {
                       {Number(item.quantity)}
                     </div>
                     <div className="col-span-2 text-right text-muted-foreground">
-                      {formatCurrency(Number(item.unitPrice))}
+                      {formatCurrencyWithSettings(Number(item.unitPrice))}
                     </div>
                     <div className="col-span-2 text-right font-medium">
-                      {formatCurrency(Number(item.total))}
+                      {formatCurrencyWithSettings(Number(item.total))}
                     </div>
                   </div>
                 ))}
@@ -322,26 +373,26 @@ export default function InvoiceDetailPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span>Subtotal:</span>
-                  <span>{formatCurrency(Number(invoice.subtotal))}</span>
+                  <span>{formatCurrencyWithSettings(Number(invoice.subtotal))}</span>
                 </div>
                 
                 {Number(invoice.discount) > 0 && (
                   <div className="flex items-center justify-between text-sm text-destructive">
                     <span>Discount:</span>
-                    <span>-{formatCurrency(Number(invoice.discount))}</span>
+                    <span>-{formatCurrencyWithSettings(Number(invoice.discount))}</span>
                   </div>
                 )}
                 
                 <div className="flex items-center justify-between text-sm">
-                  <span>Tax:</span>
-                  <span>{formatCurrency(Number(invoice.tax))}</span>
+                  <span>Tax ({settings?.taxRate || 0}%):</span>
+                  <span>{formatCurrencyWithSettings(Number(invoice.tax))}</span>
                 </div>
                 
                 <Separator />
                 
                 <div className="flex items-center justify-between font-semibold">
                   <span>Total:</span>
-                  <span className="text-lg">{formatCurrency(Number(invoice.total))}</span>
+                  <span className="text-lg">{formatCurrencyWithSettings(Number(invoice.total))}</span>
                 </div>
               </div>
             </CardContent>
@@ -370,6 +421,12 @@ export default function InvoiceDetailPage() {
                   <div>
                     <p className="font-medium">Last Updated</p>
                     <p className="text-muted-foreground">{formatDate(invoice.updatedAt)}</p>
+                  </div>
+                )}
+                {settings && (
+                  <div>
+                    <p className="font-medium">Currency</p>
+                    <p className="text-muted-foreground">{settings.currency}</p>
                   </div>
                 )}
               </div>
@@ -457,6 +514,26 @@ function InvoiceDetailSkeleton() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Business Info */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-16" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <Skeleton className="h-6 w-32" />
+                <div className="space-y-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center space-x-2">
+                      <Skeleton className="h-4 w-4" />
+                      <Skeleton className="h-4 w-48" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Customer Info */}
           <Card>
             <CardHeader>

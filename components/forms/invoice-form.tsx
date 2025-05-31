@@ -1,3 +1,4 @@
+// components/forms/invoice-form.tsx - תיקון לשימוש בהגדרות המס
 'use client'
 
 import { useForm, useFieldArray } from 'react-hook-form'
@@ -21,6 +22,7 @@ import { Badge } from '@/components/ui/badge'
 import { Loader2, Save, X, Plus, Trash2, Calculator } from 'lucide-react'
 import { useEffect, useState, useMemo } from 'react'
 import { useCustomers } from '@/hooks/use-customers'
+import { useSettings } from '@/hooks/use-settings' // נוסיף את זה
 import { formatCurrency, parseNumber, calculateInvoiceTotal } from '@/lib/utils'
 import { format } from 'date-fns'
 
@@ -53,8 +55,9 @@ export function InvoiceForm({
   title = invoice ? 'Edit Invoice' : 'Create New Invoice',
   preSelectedCustomerId
 }: InvoiceFormProps) {
-  const [taxRate] = useState() // Default Israeli VAT rate
-  const { customers } = useCustomers({ limit: 100 }) // Get all customers for dropdown
+  // טוען הגדרות המשתמש לקבלת שיעור המס
+  const { settings, loading: settingsLoading } = useSettings()
+  const { customers } = useCustomers({ limit: 100 })
 
   const {
     register,
@@ -68,7 +71,7 @@ export function InvoiceForm({
     resolver: zodResolver(invoiceFormSchema),
     defaultValues: {
       customerId: preSelectedCustomerId || '',
-      dueDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'), // 30 days from now
+      dueDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
       notes: '',
       discount: '0',
       items: [{ description: '', quantity: '1', unitPrice: '0' }],
@@ -84,8 +87,10 @@ export function InvoiceForm({
   const watchedItems = watch('items')
   const watchedDiscount = watch('discount')
 
-  // Calculate totals
+  // Calculate totals using tax rate from settings
   const calculations = useMemo(() => {
+    if (!settings) return { subtotal: 0, tax: 0, discount: 0, total: 0 }
+    
     const subtotal = watchedItems.reduce((sum, item) => {
       const quantity = parseNumber(item.quantity || '0')
       const unitPrice = parseNumber(item.unitPrice || '0')
@@ -94,8 +99,8 @@ export function InvoiceForm({
 
     const discount = parseNumber(watchedDiscount || '0')
     
-    return calculateInvoiceTotal(subtotal, taxRate, discount)
-  }, [watchedItems, watchedDiscount, taxRate])
+    return calculateInvoiceTotal(subtotal, Number(settings.taxRate), discount)
+  }, [watchedItems, watchedDiscount, settings])
 
   // Set form values when editing
   useEffect(() => {
@@ -120,14 +125,15 @@ export function InvoiceForm({
     }
   }, [invoice, setValue, fields.length, remove, append])
 
-  const handleFormSubmit = async (data: InvoiceFormData) => {
+  const handleFormSubmit = async (data: any) => {
+    const formData = data as InvoiceFormData
     try {
       const submitData = {
-        customerId: data.customerId,
-        dueDate: new Date(data.dueDate),
-        notes: data.notes.trim() || undefined,
-        discount: parseNumber(data.discount),
-        items: data.items.map(item => ({
+        customerId: formData.customerId,
+        dueDate: new Date(formData.dueDate),
+        notes: formData.notes.trim() || undefined,
+        discount: parseNumber(formData.discount),
+        items: formData.items.map(item => ({
           description: item.description.trim(),
           quantity: parseNumber(item.quantity),
           unitPrice: parseNumber(item.unitPrice),
@@ -136,7 +142,6 @@ export function InvoiceForm({
       
       await onSubmit(submitData)
       
-      // Reset form only if creating new invoice
       if (!invoice) {
         reset()
       }
@@ -153,6 +158,20 @@ export function InvoiceForm({
     if (fields.length > 1) {
       remove(index)
     }
+  }
+
+  // אם ההגדרות עדיין לא נטענו
+  if (settingsLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center">
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Loading form...
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -388,7 +407,7 @@ export function InvoiceForm({
                   </div>
                 )}
                 <div className="flex justify-between">
-                  {taxRate && <span>Tax ({taxRate}%):</span>}
+                  <span>Tax ({settings?.taxRate || 0}%):</span>
                   <span>{formatCurrency(calculations.tax)}</span>
                 </div>
                 <Separator />

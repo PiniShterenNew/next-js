@@ -1,3 +1,4 @@
+// app/api/invoices/route.ts - תיקון והוספת התראות
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
@@ -239,11 +240,12 @@ export async function POST(request: NextRequest) {
       return newInvoice
     })
 
-
-
     // יצירת התראה לחשבונית חדשה
     try {
-      await NotificationService.notifyInvoiceCreated(invoice)
+      await NotificationService.notifyInvoiceCreated({
+        ...invoice,
+        userId: user.id
+      })
     } catch (error) {
       console.error('Failed to create notification:', error)
       // לא נרצה שכשל ביצירת התראה יפסיק את יצירת החשבונית
