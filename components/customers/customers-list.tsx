@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Customer } from '@/types'
 import { useCustomers } from '@/hooks/use-customers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -43,6 +44,7 @@ import { useCallback } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export function CustomersList() {
+  const t = useTranslations('customers')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null)
@@ -81,9 +83,9 @@ export function CustomersList() {
       <Card>
         <CardContent className="p-6">
           <div className="text-center text-destructive">
-            <p>Error loading customers: {error}</p>
+            <p>{t('error', { message: error })}</p>
             <Button onClick={refreshCustomers} className="mt-4">
-              Try Again
+              {t('tryAgain')}
             </Button>
           </div>
         </CardContent>
@@ -92,19 +94,19 @@ export function CustomersList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Customers</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Manage your customer database
+            {t('subtitle')}
           </p>
         </div>
         <Link href="/dashboard/customers/new">
           <Button>
             <Plus className="w-4 h-4 mr-2" />
-            Add Customer
+            {t('addCustomer')}
           </Button>
         </Link>
       </div>
@@ -112,19 +114,19 @@ export function CustomersList() {
       {/* Search and Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search customers by name or email..."
+                placeholder={t('search')}
                 onChange={handleSearchChange}
                 className="pl-10"
               />
             </div>
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="w-4 h-4" />
               <span>
-                {pagination ? `${pagination.total} customers` : 'Loading...'}
+                {pagination ? t('customersCount', { count: pagination.total }) : t('loading')}
               </span>
             </div>
           </div>
@@ -141,7 +143,7 @@ export function CustomersList() {
                 <Skeleton className="h-4 w-48" />
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="gap-3">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-4 w-32" />
                   <Skeleton className="h-8 w-full" />
@@ -155,17 +157,10 @@ export function CustomersList() {
           <CardContent className="p-12">
             <div className="text-center">
               <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
-              <h3 className="text-lg font-semibold mb-2">No customers found</h3>
-              <p className="text-muted-foreground mb-6">
-                {search 
-                  ? `No customers match "${search}". Try a different search term.`
-                  : "Get started by adding your first customer."
-                }
-              </p>
+              <p>{t('empty')}</p>
               <Link href="/dashboard/customers/new">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Your First Customer
+                <Button className="mt-4">
+                  {t('createFirst')}
                 </Button>
               </Link>
             </div>
@@ -185,23 +180,23 @@ export function CustomersList() {
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-center space-x-2">
+        <div className="flex items-center justify-center gap-2">
           <Button
             variant="outline"
             onClick={() => setPage(page - 1)}
             disabled={page <= 1 || loading}
           >
-            Previous
+            {t('pagination.prev')}
           </Button>
           <span className="text-sm text-muted-foreground">
-            Page {page} of {pagination.totalPages}
+            {t('pagination.page', { current: page, total: pagination.totalPages })}
           </span>
           <Button
             variant="outline"
             onClick={() => setPage(page + 1)}
             disabled={page >= pagination.totalPages || loading}
           >
-            Next
+            {t('pagination.next')}
           </Button>
         </div>
       )}
@@ -210,19 +205,18 @@ export function CustomersList() {
       <AlertDialog open={!!customerToDelete} onOpenChange={() => setCustomerToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteCustomer.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {customerToDelete?.name}? 
-              This action cannot be undone and will remove all customer data.
+              {t('deleteCustomer.description', { name: customerToDelete?.name || '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('deleteCustomer.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => customerToDelete && handleDeleteCustomer(customerToDelete)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete Customer
+              {t('deleteCustomer.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -237,13 +231,14 @@ interface CustomerCardProps {
 }
 
 function CustomerCard({ customer, onDelete }: CustomerCardProps) {
+  const t = useTranslations('customers')
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg">{customer.name}</CardTitle>
-            <div className="flex items-center space-x-1 mt-1">
+            <div className="flex items-center gap-1 mt-1">
               <Mail className="w-3 h-3 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">{customer.email}</span>
             </div>
@@ -258,13 +253,13 @@ function CustomerCard({ customer, onDelete }: CustomerCardProps) {
               <DropdownMenuItem asChild>
                 <Link href={`/dashboard/customers/${customer.id}`}>
                   <Eye className="w-4 h-4 mr-2" />
-                  View Details
+                  {t('card.viewDetails')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href={`/dashboard/customers/${customer.id}/edit`}>
                   <Edit className="w-4 h-4 mr-2" />
-                  Edit Customer
+                  {t('card.editCustomer')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem 
@@ -272,7 +267,7 @@ function CustomerCard({ customer, onDelete }: CustomerCardProps) {
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete Customer
+                {t('card.deleteCustomer')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -280,26 +275,26 @@ function CustomerCard({ customer, onDelete }: CustomerCardProps) {
       </CardHeader>
       
       <CardContent className="pt-0">
-        <div className="space-y-2">
+        <div className="gap-2">
           {customer.phone && (
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Phone className="w-3 h-3" />
               <span>{customer.phone}</span>
             </div>
           )}
           
           {customer.address && (
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="w-3 h-3" />
               <span className="truncate">{customer.address}</span>
             </div>
           )}
           
           <div className="flex items-center justify-between pt-3 border-t border-border">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <FileText className="w-3 h-3 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">
-                {(customer as any)._count?.invoices || 0} invoices
+                {t('card.invoices', { count: (customer as any)._count?.invoices || 0 })}
               </span>
             </div>
             <Badge variant="secondary" className="text-xs">

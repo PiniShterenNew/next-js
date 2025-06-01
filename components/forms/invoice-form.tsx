@@ -99,7 +99,9 @@ export function InvoiceForm({
 
     const discount = parseNumber(watchedDiscount || '0')
     
-    return calculateInvoiceTotal(subtotal, Number(settings.taxRate), discount)
+    // Use tax rate from settings, if tax rate is 0, tax is disabled
+    const taxRate = Number(settings.taxRate) || 0
+    return calculateInvoiceTotal(subtotal, taxRate, discount)
   }, [watchedItems, watchedDiscount, settings])
 
   // Set form values when editing
@@ -175,7 +177,7 @@ export function InvoiceForm({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="gap-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -188,7 +190,7 @@ export function InvoiceForm({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(handleFormSubmit)} className="gap-6">
             {/* Customer and Due Date */}
             <div className="grid gap-6 md:grid-cols-2">
               {/* Customer Selection */}
@@ -239,7 +241,7 @@ export function InvoiceForm({
             </div>
 
             {/* Invoice Items */}
-            <div className="space-y-4">
+            <div className="gap-4">
               <div className="flex items-center justify-between">
                 <Label className="text-base font-semibold">Invoice Items *</Label>
                 <Button
@@ -254,7 +256,7 @@ export function InvoiceForm({
                 </Button>
               </div>
 
-              <div className="space-y-3">
+              <div className="gap-3">
                 {fields.map((field, index) => (
                   <Card key={field.id} className="p-4">
                     <div className="grid gap-4 md:grid-cols-12 items-start">
@@ -395,7 +397,7 @@ export function InvoiceForm({
                 <Calculator className="w-4 h-4 mr-2" />
                 <span className="font-semibold">Invoice Summary</span>
               </div>
-              <div className="space-y-2 text-sm">
+              <div className="gap-2 text-sm">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span>{formatCurrency(calculations.subtotal)}</span>
@@ -406,10 +408,13 @@ export function InvoiceForm({
                     <span>-{formatCurrency(calculations.discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span>Tax ({settings?.taxRate || 0}%):</span>
-                  <span>{formatCurrency(calculations.tax)}</span>
-                </div>
+                {/* Only show tax line if tax rate is greater than 0 */}
+                {Number(settings?.taxRate) > 0 && (
+                  <div className="flex justify-between">
+                    <span>Tax ({settings?.taxRate || 0}%):</span>
+                    <span>{formatCurrency(calculations.tax)}</span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between font-semibold text-base">
                   <span>Total:</span>
@@ -419,7 +424,7 @@ export function InvoiceForm({
             </div>
 
             {/* Form Actions */}
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-border">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
               {onCancel && (
                 <Button
                   type="button"

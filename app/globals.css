@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import fonts for multilingual support */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap');
+
 /* CSS Variables for theming */
 @layer base {
   :root {
@@ -17,14 +21,20 @@
     --secondary-foreground: 222.2 84% 4.9%;
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --accent: 31 95% 65%;  /* New warm accent color (amber/orange) */
+    --accent-foreground: 20 6% 15%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+    
+    /* Enhanced shadow variables */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   }
 
   .dark {
@@ -40,13 +50,19 @@
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 31 85% 55%;  /* Dark mode warm accent color */
+    --accent-foreground: 20 6% 95%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 94.1%;
+    
+    /* Dark mode shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -55,30 +71,53 @@
     @apply border-border;
   }
   
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: var(--font-sans);
+  }
+  
+  /* Language specific font settings */
+  [lang="he"] body {
+    @apply font-hebrew;
+  }
+  
+  /* RTL support for text alignment */
+  [dir="rtl"] body {
+    text-align: right;
+  }
+  
+  [dir="ltr"] body {
+    text-align: left;
   }
 
   /* Enhanced typography for readability */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-semibold tracking-tight leading-tight;
   }
 
   h1 {
-    @apply text-3xl sm:text-4xl md:text-5xl;
+    @apply text-3xl sm:text-4xl md:text-5xl sm:mb-2;
   }
 
   h2 {
-    @apply text-2xl sm:text-3xl md:text-4xl;
+    @apply text-2xl sm:text-3xl md:text-4xl sm:mb-2;
   }
 
   h3 {
-    @apply text-xl sm:text-2xl md:text-3xl;
+    @apply text-xl sm:text-2xl md:text-3xl sm:mb-2;
   }
 
   h4 {
-    @apply text-lg sm:text-xl md:text-2xl;
+    @apply text-lg sm:text-xl md:text-2xl sm:mb-1;
+  }
+
+  p {
+    @apply mb-1 leading-relaxed;
   }
 
   /* Responsive text sizing */
@@ -89,11 +128,6 @@
   /* Focus styles for accessibility */
   *:focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
-  }
-
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
   }
 
   /* Custom scrollbar */
@@ -118,78 +152,150 @@
 @layer components {
   /* Container utilities for consistent layouts */
   .container-responsive {
-    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+    @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  /* RTL/LTR specific components */
+  [dir="rtl"] .rtl-flip {
+    transform: scaleX(-1);
+  }
+  
+  [dir="rtl"] .rtl-mirror {
+    transform: rotate(180deg);
+  }
+  
+  [dir="rtl"] .rtl-swap-margin {
+    @apply ml-0 mr-auto;
+  }
+  
+  [dir="ltr"] .rtl-swap-margin {
+    @apply ml-auto mr-0;
+  }
+  
+  /* Icon direction in RTL mode */
+  [dir="rtl"] .icon-arrow-right {
+    transform: rotate(180deg);
+  }
+  
+  [dir="rtl"] .icon-arrow-left {
+    transform: rotate(180deg);
   }
 
   /* Mobile-first navigation styles */
   .nav-item {
-    @apply block px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200;
-  }
-
-  .nav-item:hover {
-    @apply bg-accent text-accent-foreground;
+    @apply block px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 hover:bg-accent/80 hover:text-accent-foreground;
   }
 
   .nav-item.active {
-    @apply bg-primary text-primary-foreground;
+    @apply bg-primary text-primary-foreground font-semibold;
   }
 
   /* Card component enhancements */
   .card-hover {
-    @apply transition-all duration-200 hover:shadow-lg hover:scale-[1.02];
+    @apply transition-all duration-200 hover:shadow-md hover:translate-y-[-2px] border border-border/50;
+  }
+  
+  .card-glass {
+    @apply bg-background/60 backdrop-blur-md border border-border/30;
+  }
+  
+  /* Color accent utilities */
+  .accent-gradient {
+    @apply bg-gradient-to-r from-accent/70 to-accent;
+  }
+  
+  .accent-border {
+    @apply border-l-4 border-accent pl-4;
+  }
+  
+  .accent-dot {
+    @apply w-2 h-2 rounded-full bg-accent inline-block mr-2;
+  }
+  
+  /* Enhanced card styles */
+  .card-accent {
+    @apply border-t-4 border-accent;
+  }
+  
+  .card-hover-accent {
+    @apply transition-all duration-200 hover:border-accent;
   }
 
   /* Form styles for better UX */
   .form-section {
-    @apply space-y-4 p-4 sm:p-6 bg-card border rounded-lg;
+    @apply gap-4 p-4 sm:p-6 bg-card border rounded-lg shadow-sm;
   }
 
   .form-group {
-    @apply space-y-2;
+    @apply gap-2 mb-4;
   }
 
   .form-label {
-    @apply text-sm font-medium text-foreground;
+    @apply text-sm font-medium text-foreground mb-1 block;
   }
 
   .form-error {
-    @apply text-sm text-destructive;
+    @apply text-sm text-destructive mt-1;
   }
 
   /* Button variants for common patterns */
   .btn-ghost {
-    @apply hover:bg-accent hover:text-accent-foreground;
+    @apply hover:bg-accent/70 hover:text-accent-foreground transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors;
   }
 
   /* Table responsive wrapper */
   .table-responsive {
-    @apply overflow-x-auto rounded-md border;
+    @apply overflow-x-auto rounded-md border shadow-sm;
+  }
+  
+  .table-modern {
+    @apply w-full border-collapse;
+  }
+  
+  .table-modern th {
+    @apply bg-muted/50 text-muted-foreground font-medium text-sm py-3 px-4 text-left;
+  }
+  
+  [dir="rtl"] .table-modern th {
+    @apply text-right;
+  }
+  
+  .table-modern td {
+    @apply py-3 px-4 border-t border-border/50;
   }
 
   /* Status badges */
   .status-paid {
-    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100;
+    @apply bg-green-100 text-green-800 dark:bg-green-900/70 dark:text-green-100 px-2 py-1 rounded-full text-xs font-medium;
   }
 
   .status-pending {
-    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100;
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/70 dark:text-yellow-100 px-2 py-1 rounded-full text-xs font-medium;
   }
 
   .status-overdue {
-    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100;
+    @apply bg-red-100 text-red-800 dark:bg-red-900/70 dark:text-red-100 px-2 py-1 rounded-full text-xs font-medium;
   }
 
   .status-draft {
-    @apply bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100;
+    @apply bg-gray-100 text-gray-800 dark:bg-gray-800/70 dark:text-gray-100 px-2 py-1 rounded-full text-xs font-medium;
   }
 
   /* Mobile-optimized spacing */
   .section-spacing {
-    @apply py-6 sm:py-8 md:py-12;
+    @apply py-8 sm:py-12 md:py-16;
   }
 
   .content-spacing {
-    @apply space-y-4 sm:space-y-6;
+    @apply gap-4 sm:gap-6 md:gap-8;
   }
 
   /* Sidebar/drawer responsive behavior */
@@ -217,11 +323,15 @@
 @layer utilities {
   /* Mobile-first responsive grid patterns */
   .grid-responsive-cards {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8;
   }
 
   .grid-responsive-list {
-    @apply grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6;
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8;
+  }
+  
+  .grid-dashboard {
+    @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6;
   }
 
   /* Flex utilities for common layouts */
@@ -236,8 +346,20 @@
   .flex-col-center {
     @apply flex flex-col items-center justify-center;
   }
+  
+  .flex-start {
+    @apply flex items-center justify-start;
+  }
+  
+  .flex-end {
+    @apply flex items-center justify-end;
+  }
 
   /* Text truncation utilities */
+  .text-truncate-lines-1 {
+    @apply overflow-hidden whitespace-nowrap text-ellipsis;
+  }
+  
   .text-truncate-lines-2 {
     @apply overflow-hidden;
     display: -webkit-box;
@@ -267,11 +389,66 @@
   }
 
   .animate-slide-up {
-    @apply animate-[fade-in_0.3s_ease-out];
+    @apply animate-[slide-up_0.4s_ease-out];
+  }
+  
+  .animate-slide-in-right {
+    @apply animate-[slide-in-right_0.3s_ease-out];
+  }
+  
+  .animate-slide-in-left {
+    @apply animate-[slide-in-left_0.3s_ease-out];
+  }
+  
+  /* For RTL languages, we swap the slide directions */
+  [dir="rtl"] .animate-slide-in-right {
+    @apply animate-[slide-in-left_0.3s_ease-out];
+  }
+  
+  [dir="rtl"] .animate-slide-in-left {
+    @apply animate-[slide-in-right_0.3s_ease-out];
+  }
+  
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slide-up {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  @keyframes slide-in-right {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  @keyframes slide-in-left {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
   }
 
   /* Touch-friendly tap targets */
   .tap-target {
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  /* Shadow utilities */
+  .shadow-card {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .shadow-dropdown {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .shadow-hero {
+    box-shadow: var(--shadow-xl);
+  }
+  
+  /* Glass morphism effects */
+  .bg-glass {
+    @apply bg-background/80 backdrop-blur-md border border-border/40;
   }
 }

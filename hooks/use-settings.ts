@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { UserSettings, ApiResponse, UpdateUserSettingsData } from '@/types'
+import { useGlobalApp } from '@/context/AppContext'
+import { UpdateUserSettingsData, UserSettings } from '@/types'
 import { toast } from 'sonner'
 
 interface UseSettingsReturn {
@@ -13,68 +13,15 @@ interface UseSettingsReturn {
 }
 
 export function useSettings(): UseSettingsReturn {
-  const [settings, setSettings] = useState<UserSettings | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  // השתמש ב-Global Context במקום local state
+  const { state, actions } = useGlobalApp()
 
-  // Fetch settings
-  const fetchSettings = useCallback(async () => {
+  const updateSettings = async (data: UpdateUserSettingsData) => {
     try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch('/api/settings')
-      const data: ApiResponse<UserSettings> = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch settings')
-      }
-
-      if (data.success && data.data) {
-        setSettings(data.data)
-      } else {
-        throw new Error(data.error || 'Failed to fetch settings')
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
-      setError(errorMessage)
-      toast.error('Failed to load settings', {
-        description: errorMessage
-      })
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  // Update settings
-  const updateSettings = async (data: UpdateUserSettingsData): Promise<UserSettings | null> => {
-    try {
-      setError(null)
-
-      const response = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-
-      const result: ApiResponse<UserSettings> = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to update settings')
-      }
-
-      if (result.success && result.data) {
-        setSettings(result.data)
-        toast.success('Settings updated successfully!')
-        return result.data
-      } else {
-        throw new Error(result.error || 'Failed to update settings')
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
-      setError(errorMessage)
+      await actions.updateSettings(data)
+      return state.settings
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred'
       toast.error('Failed to update settings', {
         description: errorMessage
       })
@@ -82,20 +29,14 @@ export function useSettings(): UseSettingsReturn {
     }
   }
 
-  // Refetch settings
   const refetch = async () => {
-    await fetchSettings()
+    await actions.loadSettings()
   }
 
-  // Initial fetch
-  useEffect(() => {
-    fetchSettings()
-  }, [fetchSettings])
-
   return {
-    settings,
-    loading,
-    error,
+    settings: state.settings,
+    loading: state.settingsLoading,
+    error: null, // Global context handles errors internally
     updateSettings,
     refetch,
   }

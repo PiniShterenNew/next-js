@@ -1,0 +1,542 @@
+{
+  "appName": "מערכת חשבוניות",
+  "theme": {
+    "light": "בהיר",
+    "dark": "כהה",
+    "system": "מערכת"
+  },
+  "footer": {
+    "copyright": "מערכת ניהול חשבוניות"
+  },
+  "navigation": {
+    "dashboard": "לוח בקרה",
+    "invoices": "חשבוניות",
+    "allInvoices": "כל החשבוניות",
+    "createInvoice": "צור חשבונית",
+    "customers": "לקוחות",
+    "allCustomers": "כל הלקוחות",
+    "addCustomer": "הוסף לקוח",
+    "notifications": "התראות",
+    "settings": "הגדרות",
+    "menu": "תפריט"
+  },
+  "common": {
+    "back": "חזרה",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "delete": "מחק",
+    "edit": "ערוך",
+    "view": "צפה",
+    "download": "הורד",
+    "copy": "העתק",
+    "send": "שלח",
+    "create": "צור",
+    "loading": "טוען...",
+    "notFound": "לא נמצא",
+    "success": "הצלחה",
+    "error": "שגיאה",
+    "warning": "אזהרה",
+    "from": "מאת",
+    "to": "אל",
+    "total": "סה״כ",
+    "subtotal": "סיכום ביניים",
+    "tax": "מע״מ",
+    "discount": "הנחה",
+    "currency": "מטבע",
+    "status": "סטטוס",
+    "actions": "פעולות",
+    "details": "פרטים",
+    "notes": "הערות",
+    "description": "תיאור",
+    "appName": "מערכת חשבוניות",
+    "quickActions": "פעולות מהירות",
+    "quantity": "כמות",
+    "unitPrice": "מחיר ליחידה",
+    "date": "תאריך",
+    "dueDate": "תאריך לתשלום",
+    "issueDate": "תאריך הנפקה",
+    "createdAt": "נוצר ב",
+    "updatedAt": "עודכן לאחרונה"
+  },
+  "invoice": {
+    "title": "חשבוניות",
+    "new": "חשבונית חדשה",
+    "edit": "ערוך חשבונית",
+    "delete": "מחק חשבונית",
+    "number": "מספר חשבונית",
+    "date": "תאריך חשבונית",
+    "dueDate": "תאריך לתשלום",
+    "customer": "לקוח",
+    "items": "פריטים",
+    "subtotal": "סיכום ביניים",
+    "discount": "הנחה",
+    "tax": "מע\"מ",
+    "total": "סה\"כ",
+    "notes": "הערות",
+    "addItem": "הוסף פריט",
+    "removeItem": "הסר פריט",
+    "itemDescription": "תיאור",
+    "itemQuantity": "כמות",
+    "itemUnitPrice": "מחיר ליחידה",
+    "itemTotal": "סה\"כ",
+    "paid": "שולם",
+    "draft": "טיוטה",
+    "sent": "נשלח",
+    "overdue": "באיחור",
+    "cancelled": "בוטל",
+    "markAsPaid": "סמן כשולם",
+    "markAsOverdue": "סמן באיחור",
+    "markAsSent": "סמן כנשלח",
+    "cancel": "בטל חשבונית",
+    "downloadPdf": "הורד PDF",
+    "sendToCustomer": "שלח ללקוח",
+    "notFound": "חשבונית לא נמצאה",
+    "notFoundDesc": "החשבונית שאתה מחפש אינה קיימת.",
+    "backToInvoices": "חזרה לחשבוניות",
+    "copyNumber": "העתק מספר חשבונית",
+    "numberCopied": "מספר חשבונית הועתק ללוח",
+    "from": "מאת",
+    "billTo": "לחיוב",
+    "taxId": "מספר עוסק",
+    "invoiceItems": "פריטי חשבונית",
+    "summary": "סיכום חשבונית",
+    "details": "פרטי חשבונית",
+    "issueDate": "תאריך הנפקה",
+    "created": "נוצר",
+    "lastUpdated": "עודכן לאחרונה",
+    "currency": "מטבע",
+    "deleteConfirm": "האם אתה בטוח שברצונך למחוק את חשבונית {number}? פעולה זו אינה ניתנת לביטול.",
+    "deleteWarning": "אזהרה: רק חשבוניות במצב טיוטה ניתנות למחיקה.",
+    "deleteInvoice": "מחק חשבונית",
+    "cannotBeUndone": "פעולה זו אינה ניתנת לביטול.",
+    "onlyDraftsCanBeDeleted": "אזהרה: רק חשבוניות בסטטוס טיוטה ניתנות למחיקה.",
+    "viewCustomer": "צפה בלקוח",
+    "newForCustomer": "חשבונית חדשה ללקוח",
+    "newInvoiceForCustomer": "חשבונית חדשה ללקוח",
+    "quickActions": "פעולות מהירות",
+    "status": {
+      "draft": "טיוטה",
+      "sent": "נשלחה",
+      "paid": "שולם",
+      "overdue": "באיחור",
+      "cancelled": "בוטלה"
+    },
+    "actions": {
+      "send": "שלח חשבונית",
+      "markAsPaid": "סמן כשולם",
+      "markAsOverdue": "סמן כבאיחור",
+      "cancel": "בטל חשבונית",
+      "delete": "מחק חשבונית",
+      "download": "הורד PDF",
+      "newForCustomer": "חשבונית חדשה ללקוח"
+    },
+    "deleteConfirmation": "האם אתה בטוח שברצונך למחוק את חשבונית {invoiceNumber}?",
+    "notifications": {
+      "copied": "מספר חשבונית הועתק ללוח"
+    }
+  },
+  "customer": {
+    "title": "לקוחות",
+    "new": "לקוח חדש",
+    "edit": "ערוך לקוח",
+    "delete": "מחק לקוח",
+    "details": "פרטי לקוח",
+    "name": "שם",
+    "email": "אימייל",
+    "phone": "טלפון",
+    "address": "כתובת",
+    "taxId": "מספר עוסק",
+    "viewCustomer": "צפה בלקוח"
+  },
+  "notifications": {
+    "title": "התראות",
+    "markAllRead": "סמן הכל כנקרא",
+    "loading": "טוען התראות...",
+    "empty": "אין התראות",
+    "noNotifications": "נודיע לך כאשר משהו יקרה",
+    "viewAll": "צפה בכל ההתראות"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "subtitle": "נהל את החשבון והעדפות העסק שלך",
+    "appearance": "מראה",
+    "appearanceDescription": "התאם את המראה והתחושה של האפליקציה",
+    "language": "שפה",
+    "account": {
+      "title": "פרטי חשבון",
+      "name": "שם",
+      "email": "דוא\"ל",
+      "status": "סטטוס חשבון",
+      "active": "פעיל",
+      "memberSince": "חבר מאז"
+    },
+    "export": {
+      "title": "ייצוא נתונים",
+      "description": "הורד עותק של כל הנתונים שלך",
+      "button": "ייצוא נתונים"
+    },
+    "delete": {
+      "title": "מחיקת חשבון",
+      "description": "מחק לצמיתות את החשבון שלך ואת כל הנתונים המשויכים אליו",
+      "button": "מחק חשבון",
+      "confirmTitle": "מחיקת חשבון",
+      "confirmDescription": "פעולה זו אינה הפיכה. היא תמחק לצמיתות את החשבון שלך ותסיר את כל הנתונים שלך מהשרתים שלנו, כולל:",
+      "confirmList": {
+        "item1": "כל החשבוניות ונתוני הלקוחות",
+        "item2": "הגדרות והעדפות עסקיות",
+        "item3": "מידע והיסטוריית חשבון"
+      }
+    },
+    "form": {
+      "business": {
+        "title": "פרטי עסק",
+        "name": "שם העסק",
+        "namePlaceholder": "שם העסק שלך",
+        "address": "כתובת העסק",
+        "addressPlaceholder": "רחוב, עיר, מיקוד, מדינה",
+        "phone": "טלפון עסקי",
+        "phonePlaceholder": "050-123-4567",
+        "email": "דוא\"ל עסקי",
+        "emailPlaceholder": "contact@yourbusiness.com"
+      },
+      "billing": {
+        "title": "הגדרות חיוב",
+        "currency": "מטבע ברירת מחדל",
+        "prefix": "קידומת חשבונית",
+        "prefixPlaceholder": "INV",
+        "prefixHelp": "דוגמה: INV-0001, BILL-0001"
+      },
+      "tax": {
+        "title": "הגדרות מס",
+        "enable": "הפעל חישוב מס",
+        "enableDescription": "חשב מס אוטומטית בחשבוניות",
+        "rate": "שיעור מס (%)",
+        "ratePlaceholder": "17",
+        "rateHelp": "מע\"מ סטנדרטי בישראל הוא 17%"
+      },
+      "saving": "שומר...",
+      "save": "שמור הגדרות",
+      "error": "שגיאה בטעינת הגדרות",
+      "tryAgain": "נסה שוב"
+    },
+    "statistics": {
+      "title": "סטטיסטיקת חשבוניות",
+      "nextNumber": "מספר החשבונית הבא",
+      "taxRate": "שיעור מס נוכחי",
+      "disabled": "מושבת"
+    }
+  },
+  "billTo": "לחיוב",
+  "quickActions": "פעולות מהירות",
+  "invoices": {
+    "title": "חשבוניות",
+    "subtitle": "נהל ועקוב אחר החשבוניות שלך",
+    "createInvoice": "צור חשבונית",
+    "search": "חפש חשבוניות לפי מספר, לקוח או הערות...",
+    "filter": {
+      "title": "סנן לפי סטטוס",
+      "all": "כל הסטטוסים",
+      "draft": "טיוטה",
+      "sent": "נשלחה",
+      "paid": "שולם",
+      "overdue": "באיחור",
+      "cancelled": "בוטלה"
+    },
+    "invoicesCount": "{count, plural, one {חשבונית אחת} other {{count} חשבוניות}}",
+    "loading": "טוען...",
+    "error": "שגיאה בטעינת חשבוניות: {message}",
+    "tryAgain": "נסה שוב",
+    "empty": "לא נמצאו חשבוניות",
+    "createFirst": "צור את החשבונית הראשונה שלך",
+    "deleteInvoice": {
+      "title": "מחק חשבונית",
+      "description": "האם אתה בטוח שברצונך למחוק את חשבונית מספר {number}? פעולה זו אינה ניתנת לביטול.",
+      "cancel": "ביטול",
+      "confirm": "מחק חשבונית"
+    },
+    "card": {
+      "viewDetails": "צפה בפרטים",
+      "editInvoice": "ערוך חשבונית",
+      "deleteInvoice": "מחק חשבונית",
+      "changeStatus": "שנה סטטוס",
+      "sendInvoice": "שלח חשבונית",
+      "markAsPaid": "סמן כשולם",
+      "markAsOverdue": "סמן כבאיחור",
+      "cancelInvoice": "בטל חשבונית",
+      "due": "לתשלום עד {date}"
+    },
+    "pagination": {
+      "prev": "הקודם",
+      "next": "הבא",
+      "page": "עמוד {current} מתוך {total}"
+    }
+  },
+  "customers": {
+    "title": "לקוחות",
+    "subtitle": "נהל את מסד הנתונים של הלקוחות שלך",
+    "addCustomer": "הוסף לקוח",
+    "search": "חפש לקוחות לפי שם או אימייל...",
+    "customersCount": "{count, plural, one {לקוח אחד} other {{count} לקוחות}}",
+    "loading": "טוען...",
+    "error": "שגיאה בטעינת לקוחות: {message}",
+    "tryAgain": "נסה שוב",
+    "empty": "לא נמצאו לקוחות",
+    "createFirst": "צור את הלקוח הראשון שלך",
+    "deleteCustomer": {
+      "title": "מחק לקוח",
+      "description": "האם אתה בטוח שברצונך למחוק את {name}? פעולה זו אינה ניתנת לביטול וכל נתוני הלקוח יוסרו.",
+      "cancel": "ביטול",
+      "confirm": "מחק לקוח"
+    },
+    "card": {
+      "viewDetails": "צפה בפרטים",
+      "editCustomer": "ערוך לקוח",
+      "deleteCustomer": "מחק לקוח",
+      "invoices": "{count, plural, one {חשבונית אחת} other {{count} חשבוניות}}"
+    },
+    "pagination": {
+      "prev": "הקודם",
+      "next": "הבא",
+      "page": "עמוד {current} מתוך {total}"
+    }
+  },
+  "dashboard": {
+    "title": "לוח בקרה",
+    "welcome": "ברוכים השבים! הנה סקירה כללית של העסק שלך.",
+    "newInvoice": "חשבונית חדשה",
+    "stats": {
+      "totalRevenue": "הכנסות כוללות",
+      "fromPaidInvoices": "מ-{count, plural, one {חשבונית אחת ששולמה} other {{count} חשבוניות ששולמו}}",
+      "totalInvoices": "סך הכל חשבוניות",
+      "paidAndPending": "{paid} שולמו, {pending} בהמתנה",
+      "overdueInvoices": "חשבוניות באיחור",
+      "needsAttention": "דורש תשומת לב מיידית",
+      "allUpToDate": "כל החשבוניות מעודכנות",
+      "totalCustomers": "סך הכל לקוחות",
+      "activeCustomers": "{count, plural, one {קשר עסקי פעיל אחד} other {{count} קשרים עסקיים פעילים}}",
+      "noCustomersYet": "אין לקוחות עדיין"
+    },
+    "recentInvoices": {
+      "title": "חשבוניות אחרונות",
+      "viewAll": "צפה בכולן",
+      "noInvoices": "אין חשבוניות עדיין",
+      "createFirst": "צור את החשבונית הראשונה שלך"
+    },
+    "quickActions": {
+      "title": "פעולות מהירות",
+      "createInvoice": "צור חשבונית חדשה",
+      "addCustomer": "הוסף לקוח חדש",
+      "reviewOverdue": "סקור חשבוניות באיחור",
+      "businessSettings": "הגדרות עסק"
+    }
+  },
+  "auth": {
+    "secure": "מאובטח ומוגן",
+    "securedBy": "מוגן על ידי Clerk • SSL מוצפן",
+    "noCode": "לא קיבלתם קוד?",
+    "resend": "שלחו שוב",
+    "fields": {
+      "email": "כתובת אימייל",
+      "password": "סיסמה",
+      "newPassword": "סיסמה חדשה",
+      "confirmPassword": "אישור סיסמה",
+      "verificationCode": "קוד אימות",
+      "firstName": "שם פרטי",
+      "lastName": "שם משפחה"
+    },
+    "placeholders": {
+      "email": "name@example.com",
+      "password": "הזינו את הסיסמה שלכם",
+      "newPassword": "בחרו סיסמה חדשה וחזקה",
+      "confirmPassword": "הזינו שוב את הסיסמה החדשה",
+      "verificationCode": "הזינו את הקוד שקיבלתם",
+      "firstName": "יוחנן",
+      "lastName": "כהן"
+    },
+    "validation": {
+      "minLength": "לפחות 8 תווים",
+      "passwordsMatch": "הסיסמאות תואמות"
+    },
+    "signIn": {
+      "title": "ברוכים הבאים חזרה",
+      "subtitle": "היכנסו לחשבון שלכם כדי להמשיך",
+      "cardTitle": "כניסה לחשבון",
+      "cardDescription": "הזינו את פרטי הכניסה שלכם למטה",
+      "googleButton": "כניסה עם Google",
+      "orContinueWith": "או המשיכו עם",
+      "forgotPassword": "שכחתם סיסמה?",
+      "submitButton": "כניסה",
+      "submitting": "נכנס...",
+      "noAccount": "עדיין אין לכם חשבון?",
+      "signUpLink": "הירשמו כאן"
+    },
+    "signUp": {
+      "title": "צרו חשבון חדש",
+      "subtitle": "הצטרפו לאלפי עסקים המנהלים חשבוניות בקלות",
+      "cardTitle": "יצירת חשבון",
+      "cardDescription": "מלאו את הפרטים למטה כדי ליצור חשבון חדש",
+      "googleButton": "הרשמה עם Google",
+      "orContinueWith": "או המשיכו עם",
+      "submitButton": "יצירת חשבון",
+      "submitting": "יוצר חשבון...",
+      "hasAccount": "כבר יש לכם חשבון?",
+      "signInLink": "היכנסו כאן",
+      "verification": {
+        "title": "אמתו את האימייל שלכם",
+        "description": "שלחנו קוד אימות לכתובת {email}",
+        "cardTitle": "אימות אימייל",
+        "cardDescription": "הזינו את קוד האימות שנשלח אליכם",
+        "submitButton": "אימות וסיום הרשמה",
+        "submitting": "מאמת..."
+      }
+    },
+    "forgotPassword": {
+      "steps": {
+        "email": {
+          "title": "שחזור סיסמה",
+          "description": "הזינו את כתובת האימייל שלכם ונשלח לכם קוד לשחזור הסיסמה"
+        },
+        "verification": {
+          "title": "אמתו את האימייל שלכם",
+          "description": "שלחנו קוד אימות לכתובת {email}"
+        },
+        "newPassword": {
+          "title": "סיסמה חדשה",
+          "description": "בחרו סיסמה חדשה וחזקה עבור החשבון שלכם"
+        }
+      },
+      "buttons": {
+        "sendCode": "שלחו קוד לשחזור",
+        "sendingCode": "שולח קוד...",
+        "verifyCode": "אמתו קוד",
+        "verifying": "מאמת...",
+        "updatePassword": "עדכן סיסמה",
+        "updating": "עדכן סיסמה..."
+      },
+      "rememberPassword": "זוכרים את הסיסמה?",
+      "backToSignIn": "חזרה לכניסה"
+    },
+    "footer": {
+      "terms": "תנאי שימוש",
+      "privacy": "מדיניות פרטיות",
+      "copyright": "© 2025 InvoicePro. כל הזכויות שמורות."
+    }
+  },
+  "auth-errors": {
+    "signIn": {
+      "accountNotFound": "לא מצאנו חשבון עם כתובת האימייל הזו",
+      "invalidPassword": "הסיסמה שהזנת שגויה",
+      "accountLocked": "נראה שניסית יותר מדי פעמים. נסה שוב בעוד כמה דקות",
+      "tooManyAttempts": "נחסמת זמנית עקב ניסיונות מרובים. המתן ונסה שוב",
+      "identifierExists": "כבר קיים חשבון עם כתובת האימייל הזו",
+      "identifierAlreadyLinked": "כתובת האימייל הזו כבר משויכת לחשבון אחר",
+      "notAllowed": "לא ניתן להיכנס עם הפרטים שסופקו"
+    },
+    "signUp": {
+      "emailExists": "כתובת האימייל הזו כבר בשימוש",
+      "weakPassword": "הסיסמה חלשה מדי. נסה לבחור סיסמה חזקה יותר",
+      "passwordTooShort": "הסיסמה חייבת להיות באורך של לפחות 8 תווים",
+      "passwordMismatch": "הסיסמאות שהזנת אינן תואמות",
+      "identifierExists": "כבר יש חשבון עם כתובת האימייל הזו"
+    },
+    "verification": {
+      "invalidCode": "הקוד שגוי או שפג תוקפו",
+      "codeExpired": "תוקף הקוד פג. שלח לעצמך קוד חדש ונסה שוב",
+      "codeIncorrect": "הקוד שהוזן אינו נכון. בדוק ונסה שנית"
+    },
+    "forgotPassword": {
+      "userNotFound": "לא קיים משתמש עם האימייל הזה",
+      "invalidCode": "קוד שגוי או שפג תוקפו",
+      "passwordTooShort": "הסיסמה חייבת להכיל לפחות 8 תווים",
+      "passwordMismatch": "הסיסמאות אינן תואמות",
+      "resetFailed": "לא הצלחנו לעדכן את הסיסמה. נסה שוב",
+      "resendFailed": "לא ניתן לשלוח קוד חדש כרגע. נסה בעוד כמה דקות"
+    },
+    "oauth": {
+      "googleError": "הייתה בעיה בחיבור עם חשבון Google שלך",
+      "notLinked": "נראה שהאימייל הזה לא מחובר לחשבון. נסה להירשם קודם",
+      "sessionExists": "כבר נכנסת למערכת. טען את הדף מחדש או עבור ללוח הבקרה"
+    },
+    "general": {
+      "unknown": "אירעה שגיאה לא צפויה. נסה שוב",
+      "tooManyAttempts": "יותר מדי ניסיונות. נסה שוב בעוד מספר דקות",
+      "networkError": "הייתה בעיה בחיבור לרשת. בדוק את האינטרנט ונסה שוב"
+    }
+  },
+  "home": {
+    "nav": {
+      "signIn": "התחברות",
+      "getStarted": "התחל עכשיו"
+    },
+    "badge": {
+      "aiFeatures": "עכשיו עם יכולות בינה מלאכותית"
+    },
+    "hero": {
+      "titleStart": "ייעל את",
+      "titleHighlight": "ניהול החשבוניות שלך",
+      "description": "צור חשבוניות מקצועיות, עקוב אחר תשלומים, ונהל לקוחות עם הפלטפורמה האינטואיטיבית שלנו המיועדת לעסקים מודרניים.",
+      "startFreeTrial": "התחל ניסיון חינם",
+      "signInToDashboard": "התחבר ללוח הבקרה"
+    },
+    "trusted": "מהימן על ידי אלפי עסקים ברחבי העולם",
+    "global": "גלובלי",
+    "clients": "מעל 10,000 לקוחות",
+    "features": {
+      "title": "כל מה שאתה צריך",
+      "subtitle": "הפלטפורמה שלנו מספקת את כל הכלים שאתה צריך כדי לנהל את החשבוניות שלך ולהגדיל את העסק שלך.",
+      "invoiceManagement": {
+        "title": "ניהול חשבוניות חכם",
+        "description": "צור, שלח ועקוב אחר חשבוניות מקצועיות בקלות. תזכורות אוטומטיות ומעקב אחר תשלומים."
+      },
+      "customerManagement": {
+        "title": "ניהול לקוחות",
+        "description": "ארגן את מסד הנתונים של הלקוחות שלך עם פרופילים מפורטים והיסטוריית תשלומים."
+      },
+      "businessAnalytics": {
+        "title": "אנליטיקה עסקית",
+        "description": "קבל תובנות על ההכנסות שלך, דפוסי תשלום וצמיחה עסקית."
+      },
+      "security": {
+        "title": "מאובטח ותואם",
+        "description": "אבטחה ברמת בנק עם גיבויים אוטומטיים ותכונות תאימות."
+      }
+    },
+    "benefits": {
+      "title": "למה לבחור במערכת שלנו?",
+      "subtitle": "הפלטפורמה שלנו מתוכננת להפוך את ניהול החשבוניות לפשוט, יעיל וחסר לחץ.",
+      "templates": "תבניות חשבוניות מקצועיות",
+      "reminders": "תזכורות תשלום אוטומטיות",
+      "multiCurrency": "תמיכה במטבעות מרובים",
+      "tracking": "מעקב תשלומים בזמן אמת",
+      "portal": "גישה לפורטל לקוחות",
+      "responsive": "עיצוב מותאם למובייל",
+      "getStarted": "התחל עוד היום"
+    },
+    "demo": {
+      "invoiceNumber": "חשבונית מס' INV-0001",
+      "paid": "שולם",
+      "client": "לקוח",
+      "clientName": "חברת אקמי",
+      "amount": "סכום",
+      "amountValue": "₪5,000.00",
+      "status": "סטטוס",
+      "statusValue": "שולם בזמן",
+      "reminder": "נשלחה תזכורת אוטומטית"
+    },
+    "cta": {
+      "badge": "מאובטח ואמין",
+      "title": "מוכן לייעל את החשבוניות שלך?",
+      "description": "הצטרף לאלפי עסקים שכבר משתמשים במערכת שלנו לניהול חשבוניות ביעילות.",
+      "startTrial": "התחל את הניסיון החינמי שלך",
+      "signIn": "התחבר",
+      "noCreditCard": "ללא צורך בכרטיס אשראי • 14 ימי ניסיון חינם • ביטול בכל עת"
+    },
+    "footer": {
+      "terms": "תנאי שימוש",
+      "privacy": "מדיניות פרטיות",
+      "help": "מרכז עזרה",
+      "contact": "צור קשר",
+      "copyright": "כל הזכויות שמורות"
+    }
+  }
+}

@@ -96,6 +96,7 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
+        hebrew: ["var(--font-varela-round)", "var(--font-geist-sans)", "system-ui", "sans-serif"],
       },
       fontSize: {
         // Responsive typography scale

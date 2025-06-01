@@ -39,29 +39,49 @@ export class InvoicePDFGenerator {
      */
     private generateInvoiceHTML(): string {
         const { invoice, settings } = this
+        const locale = 'he' // Default to Hebrew for invoices
+        const isRTL = locale === 'he'
+        const fontFamily = "'Varela Round', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
 
         return `
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="${locale}" dir="${isRTL ? 'rtl' : 'ltr'}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice ${invoice.invoiceNumber}</title>
     <style>
+        @font-face {
+            font-family: 'Varela Round';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/varelaround/v20/w8gdH283Tvk__Lua32TysjIfpcuPP9g.woff2) format('woff2');
+            unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+        }
+        @font-face {
+            font-family: 'Varela Round';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/varelaround/v20/w8gdH283Tvk__Lua32TysjIfqMuPP9g.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: ${fontFamily};
             line-height: 1.6;
             color: #333;
             background: white;
             padding: 40px;
             max-width: 800px;
             margin: 0 auto;
+            direction: ${isRTL ? 'rtl' : 'ltr'};
+            text-align: ${isRTL ? 'right' : 'left'};
         }
         
         .invoice-header {
@@ -362,26 +382,7 @@ export class InvoicePDFGenerator {
         await this.viewPDF()
     }
 
-    /**
-     * שיתוף החשבונית
-     */
-    async sharePDF(): Promise<void> {
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: `חשבונית ${this.invoice.invoiceNumber}`,
-                    text: `חשבונית עבור ${this.invoice.customer?.name}`,
-                    url: window.location.href
-                })
-            } catch (error) {
-                console.log('שיתוף בוטל או נכשל')
-            }
-        } else {
-            // fallback לעותק קישור
-            await navigator.clipboard.writeText(window.location.href)
-            alert('קישור החשבונית הועתק ללוח')
-        }
-    }
+    // This is a duplicate method that was removed
 
     /**
      * עזר - עיצוב מטבע
@@ -394,6 +395,27 @@ export class InvoicePDFGenerator {
             }).format(amount)
         }
         return formatCurrency(amount)
+    }
+
+    /**
+     * שיתוף החשבונית
+     */
+    async sharePDF(): Promise<void> {
+        if (typeof navigator !== 'undefined' && 'share' in navigator) {
+            try {
+                await navigator.share({
+                    title: `חשבונית ${this.invoice.invoiceNumber}`,
+                    text: `חשבונית עבור ${this.invoice.customer?.name}`,
+                    url: window.location.href
+                })
+            } catch (error) {
+                console.log('שיתוף בוטל או נכשל')
+            }
+        } else if (typeof navigator !== 'undefined' && 'clipboard' in navigator) {
+            // fallback לעותק קישור
+            await navigator.clipboard.writeText(window.location.href)
+            alert('קישור החשבונית הועתק ללוח')
+        }
     }
 
     /**

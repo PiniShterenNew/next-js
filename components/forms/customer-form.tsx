@@ -96,7 +96,7 @@ export function CustomerForm({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="gap-6">
           {/* Name */}
           <div className="form-group">
             <Label htmlFor="name" className="form-label">
@@ -188,7 +188,7 @@ export function CustomerForm({
           </div>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-border">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
             {onCancel && (
               <Button
                 type="button"

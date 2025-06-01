@@ -1,6 +1,6 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { userSettingsSchema, UserSettingsFormSchema } from '@/lib/validations'
 import { UserSettings, UpdateUserSettingsData } from '@/types'
@@ -20,6 +20,7 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Loader2, Save, Building, CreditCard, Globe, Calculator } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface SettingsFormProps {
   settings?: UserSettings
@@ -33,6 +34,7 @@ export function SettingsForm({
   isLoading = false
 }: SettingsFormProps) {
   const [enableTax, setEnableTax] = useState(true)
+  const t = useTranslations('settings.form')
 
   const {
     register,
@@ -41,7 +43,7 @@ export function SettingsForm({
     setValue,
     watch,
   } = useForm<UserSettingsFormSchema>({
-    resolver: zodResolver(userSettingsSchema),
+    resolver: zodResolver(userSettingsSchema) as any,
     defaultValues: {
       businessName: '',
       businessAddress: '',
@@ -70,11 +72,13 @@ export function SettingsForm({
     }
   }, [settings, setValue])
 
-  const handleFormSubmit = async (data: UserSettingsFormSchema) => {
+  const handleFormSubmit: SubmitHandler<UserSettingsFormSchema> = async (data) => {
     try {
-      const submitData = {
+      const submitData: UpdateUserSettingsData = {
         ...data,
         taxRate: enableTax ? data.taxRate : 0,
+        currency: data.currency || 'ILS',
+        invoicePrefix: data.invoicePrefix || 'INV',
         businessEmail: data.businessEmail?.trim() || undefined,
         businessAddress: data.businessAddress?.trim() || undefined,
         businessPhone: data.businessPhone?.trim() || undefined,
@@ -91,31 +95,31 @@ export function SettingsForm({
     if (!enabled) {
       setValue('taxRate', 0)
     } else if (watchedTaxRate === 0) {
-      setValue('taxRate', 17) // Default Israeli VAT
+      setValue('taxRate', 17) // Default VAT
     }
   }
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+    <div className="gap-6">
+      <form onSubmit={handleSubmit(handleFormSubmit as any)} className="gap-6">
         {/* Business Information */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center gap-2">
               <Building className="w-5 h-5" />
-              <span>Business Information</span>
+              <span>{t('business.title')}</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="gap-4">
             {/* Business Name */}
             <div className="form-group">
               <Label htmlFor="businessName" className="form-label">
-                Business Name
+                {t('business.name')}
               </Label>
               <Input
                 id="businessName"
                 {...register('businessName')}
-                placeholder="Your Business Name"
+                placeholder={t('business.namePlaceholder')}
                 className={errors.businessName ? 'border-destructive' : ''}
                 disabled={isLoading || isSubmitting}
               />
@@ -127,13 +131,13 @@ export function SettingsForm({
             {/* Business Email */}
             <div className="form-group">
               <Label htmlFor="businessEmail" className="form-label">
-                Business Email
+                {t('business.email')}
               </Label>
               <Input
                 id="businessEmail"
                 type="email"
                 {...register('businessEmail')}
-                placeholder="business@example.com"
+                placeholder={t('business.emailPlaceholder')}
                 className={errors.businessEmail ? 'border-destructive' : ''}
                 disabled={isLoading || isSubmitting}
               />
@@ -141,19 +145,19 @@ export function SettingsForm({
                 <p className="form-error">{errors.businessEmail.message}</p>
               )}
               <p className="text-xs text-muted-foreground mt-1">
-                This email will appear on your invoices
+                {t('business.emailHelp')}
               </p>
             </div>
 
             {/* Business Phone */}
             <div className="form-group">
               <Label htmlFor="businessPhone" className="form-label">
-                Business Phone
+                {t('business.phone')}
               </Label>
               <Input
                 id="businessPhone"
                 {...register('businessPhone')}
-                placeholder="050-123-4567"
+                placeholder={t('business.phonePlaceholder')}
                 className={errors.businessPhone ? 'border-destructive' : ''}
                 disabled={isLoading || isSubmitting}
               />
@@ -165,12 +169,12 @@ export function SettingsForm({
             {/* Business Address */}
             <div className="form-group">
               <Label htmlFor="businessAddress" className="form-label">
-                Business Address
+                {t('business.address')}
               </Label>
               <Textarea
                 id="businessAddress"
                 {...register('businessAddress')}
-                placeholder="Enter your business address"
+                placeholder={t('business.addressPlaceholder')}
                 rows={3}
                 className={errors.businessAddress ? 'border-destructive' : ''}
                 disabled={isLoading || isSubmitting}
@@ -185,17 +189,17 @@ export function SettingsForm({
         {/* Invoice Settings */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center gap-2">
               <CreditCard className="w-5 h-5" />
-              <span>Invoice Settings</span>
+              <span>{t('billing.title')}</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="gap-4">
             <div className="grid gap-4 md:grid-cols-2">
               {/* Currency */}
               <div className="form-group">
                 <Label htmlFor="currency" className="form-label">
-                  Currency
+                  {t('billing.currency')}
                 </Label>
                 <Select
                   value={watch('currency')}
@@ -206,10 +210,10 @@ export function SettingsForm({
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ILS">₪ Israeli Shekel (ILS)</SelectItem>
-                    <SelectItem value="USD">$ US Dollar (USD)</SelectItem>
-                    <SelectItem value="EUR">€ Euro (EUR)</SelectItem>
-                    <SelectItem value="GBP">£ British Pound (GBP)</SelectItem>
+                    <SelectItem value="ILS">₪ {t('billing.currencyILS')}</SelectItem>
+                    <SelectItem value="USD">$ {t('billing.currencyUSD')}</SelectItem>
+                    <SelectItem value="EUR">€ {t('billing.currencyEUR')}</SelectItem>
+                    <SelectItem value="GBP">£ {t('billing.currencyGBP')}</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.currency && (
@@ -220,12 +224,12 @@ export function SettingsForm({
               {/* Invoice Prefix */}
               <div className="form-group">
                 <Label htmlFor="invoicePrefix" className="form-label">
-                  Invoice Prefix
+                  {t('billing.prefix')}
                 </Label>
                 <Input
                   id="invoicePrefix"
                   {...register('invoicePrefix')}
-                  placeholder="INV"
+                  placeholder={t('billing.prefixPlaceholder')}
                   className={errors.invoicePrefix ? 'border-destructive' : ''}
                   disabled={isLoading || isSubmitting}
                 />
@@ -233,7 +237,7 @@ export function SettingsForm({
                   <p className="form-error">{errors.invoicePrefix.message}</p>
                 )}
                 <p className="text-xs text-muted-foreground mt-1">
-                  Example: INV-0001, BILL-0001
+                  {t('billing.prefixHelp')}
                 </p>
               </div>
             </div>
@@ -243,18 +247,18 @@ export function SettingsForm({
         {/* Tax Settings */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center gap-2">
               <Calculator className="w-5 h-5" />
-              <span>Tax Settings</span>
+              <span>{t('tax.title')}</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="gap-4">
             {/* Enable Tax Toggle */}
             <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">Enable Tax Calculation</Label>
+              <div className="gap-0.5">
+                <Label className="text-base">{t('tax.enable')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Automatically calculate tax on invoices
+                  {t('tax.enableDescription')}
                 </p>
               </div>
               <Switch
@@ -268,7 +272,7 @@ export function SettingsForm({
             {enableTax && (
               <div className="form-group">
                 <Label htmlFor="taxRate" className="form-label">
-                  Tax Rate (%)
+                  {t('tax.rate')}
                 </Label>
                 <div className="relative">
                   <Input
@@ -278,7 +282,7 @@ export function SettingsForm({
                     max="100"
                     step="0.01"
                     {...register('taxRate', { valueAsNumber: true })}
-                    placeholder="17"
+                    placeholder={t('tax.ratePlaceholder')}
                     className={errors.taxRate ? 'border-destructive' : ''}
                     disabled={isLoading || isSubmitting}
                   />
@@ -290,7 +294,7 @@ export function SettingsForm({
                   <p className="form-error">{errors.taxRate.message}</p>
                 )}
                 <p className="text-xs text-muted-foreground mt-1">
-                  Standard Israeli VAT is 17%
+                  {t('tax.rateHelp')}
                 </p>
               </div>
             )}
@@ -298,7 +302,7 @@ export function SettingsForm({
         </Card>
 
         {/* Form Actions */}
-        <div className="flex items-center justify-end space-x-3 pt-4">
+        <div className="flex items-center justify-end gap-3 pt-4">
           <Button
             type="submit"
             disabled={isLoading || isSubmitting}
@@ -307,12 +311,12 @@ export function SettingsForm({
             {(isLoading || isSubmitting) ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
+                {t('saving')}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                Save Settings
+                {t('save')}
               </>
             )}
           </Button>

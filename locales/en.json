@@ -1,0 +1,541 @@
+{
+  "appName": "InvoicePro",
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "footer": {
+    "copyright": "© 2023 Mini Invoice. All rights reserved."
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "invoices": "Invoices",
+    "allInvoices": "All Invoices",
+    "createInvoice": "Create Invoice",
+    "customers": "Customers",
+    "allCustomers": "All Customers",
+    "addCustomer": "Add Customer",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "menu": "Menu"
+  },
+  "common": {
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "download": "Download",
+    "copy": "Copy",
+    "send": "Send",
+    "create": "Create",
+    "loading": "Loading...",
+    "notFound": "Not Found",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "from": "From",
+    "to": "To",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "discount": "Discount",
+    "currency": "Currency",
+    "status": "Status",
+    "actions": "Actions",
+    "details": "Details",
+    "notes": "Notes",
+    "description": "Description",
+    "quantity": "Quantity",
+    "unitPrice": "Unit Price",
+    "date": "Date",
+    "dueDate": "Due Date",
+    "issueDate": "Issue Date",
+    "createdAt": "Created",
+    "updatedAt": "Last Updated",
+    "appName": "InvoicePro"
+  },
+  "invoice": {
+    "title": "Invoices",
+    "new": "New Invoice",
+    "edit": "Edit Invoice",
+    "delete": "Delete Invoice",
+    "number": "Invoice Number",
+    "date": "Invoice Date",
+    "dueDate": "Due Date",
+    "customer": "Customer",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "tax": "Tax",
+    "total": "Total",
+    "notes": "Notes",
+    "addItem": "Add Item",
+    "removeItem": "Remove Item",
+    "itemDescription": "Description",
+    "itemQuantity": "Quantity",
+    "itemUnitPrice": "Unit Price",
+    "itemTotal": "Total",
+    "paid": "Paid",
+    "draft": "Draft",
+    "sent": "Sent",
+    "overdue": "Overdue",
+    "cancelled": "Cancelled",
+    "markAsPaid": "Mark as Paid",
+    "markAsOverdue": "Mark as Overdue",
+    "markAsSent": "Mark as Sent",
+    "cancel": "Cancel Invoice",
+    "downloadPdf": "Download PDF",
+    "sendToCustomer": "Send to Customer",
+    "notFound": "Invoice Not Found",
+    "notFoundDesc": "The invoice you are looking for does not exist.",
+    "backToInvoices": "Back to Invoices",
+    "copyNumber": "Copy Invoice Number",
+    "numberCopied": "Invoice number copied to clipboard",
+    "from": "From",
+    "billTo": "Bill To",
+    "taxId": "Tax ID",
+    "invoiceItems": "Invoice Items",
+    "summary": "Invoice Summary",
+    "details": "Invoice Details",
+    "issueDate": "Issue Date",
+    "created": "Created",
+    "lastUpdated": "Last Updated",
+    "currency": "Currency",
+    "deleteConfirm": "Are you sure you want to delete invoice {number}? This action cannot be undone.",
+    "deleteWarning": "Warning: Only draft invoices can be deleted.",
+    "deleteInvoice": "Delete Invoice",
+    "cannotBeUndone": "This action cannot be undone.",
+    "onlyDraftsCanBeDeleted": "Warning: Only draft invoices can be deleted.",
+    "viewCustomer": "View Customer",
+    "newForCustomer": "New Invoice for Customer",
+    "newInvoiceForCustomer": "New Invoice for Customer",
+    "quickActions": "Quick Actions",
+    "status": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "send": "Send Invoice",
+      "markAsPaid": "Mark as Paid",
+      "markAsOverdue": "Mark as Overdue",
+      "cancel": "Cancel Invoice",
+      "delete": "Delete Invoice",
+      "download": "Download PDF",
+      "newForCustomer": "New Invoice for Customer"
+    },
+    "deleteConfirmation": "Are you sure you want to delete invoice {invoiceNumber}?",
+    "notifications": {
+      "copied": "Invoice number copied to clipboard"
+    }
+  },
+  "customer": {
+    "title": "Customers",
+    "new": "New Customer",
+    "edit": "Edit Customer",
+    "delete": "Delete Customer",
+    "details": "Customer Details",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "taxId": "Tax ID",
+    "viewCustomer": "View Customer"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "loading": "Loading notifications...",
+    "empty": "No notifications",
+    "noNotifications": "We'll notify you when something happens",
+    "viewAll": "View all notifications"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and business preferences",
+    "appearance": "Appearance",
+    "appearanceDescription": "Customize the look and feel of the application",
+    "language": "Language",
+    "account": {
+      "title": "Account Information",
+      "name": "Name",
+      "email": "Email",
+      "status": "Account Status",
+      "active": "Active",
+      "memberSince": "Member Since"
+    },
+    "export": {
+      "title": "Export Data",
+      "description": "Download a copy of all your data",
+      "button": "Export Data"
+    },
+    "delete": {
+      "title": "Delete Account",
+      "description": "Permanently delete your account and all associated data",
+      "button": "Delete Account",
+      "confirmTitle": "Delete Account",
+      "confirmDescription": "This action cannot be undone. This will permanently delete your account and remove all your data from our servers, including:",
+      "confirmList": {
+        "item1": "All invoices and customer data",
+        "item2": "Business settings and preferences",
+        "item3": "Account information and history"
+      }
+    },
+    "form": {
+      "business": {
+        "title": "Business Information",
+        "name": "Business Name",
+        "namePlaceholder": "Your Business Name",
+        "address": "Business Address",
+        "addressPlaceholder": "Street, City, ZIP, Country",
+        "phone": "Business Phone",
+        "phonePlaceholder": "+972 50 123 4567",
+        "email": "Business Email",
+        "emailPlaceholder": "contact@yourbusiness.com"
+      },
+      "billing": {
+        "title": "Billing Settings",
+        "currency": "Default Currency",
+        "prefix": "Invoice Prefix",
+        "prefixPlaceholder": "INV",
+        "prefixHelp": "Example: INV-0001, BILL-0001"
+      },
+      "tax": {
+        "title": "Tax Settings",
+        "enable": "Enable Tax Calculation",
+        "enableDescription": "Automatically calculate tax on invoices",
+        "rate": "Tax Rate (%)",
+        "ratePlaceholder": "17",
+        "rateHelp": "Standard Israeli VAT is 17%"
+      },
+      "saving": "Saving...",
+      "save": "Save Settings",
+      "error": "Error Loading Settings",
+      "tryAgain": "Try Again"
+    },
+    "statistics": {
+      "title": "Invoice Statistics",
+      "nextNumber": "Next Invoice Number",
+      "taxRate": "Current Tax Rate",
+      "disabled": "Disabled"
+    }
+  },
+  "billTo": "Bill To",
+  "quickActions": "Quick Actions",
+  "invoices": {
+    "title": "Invoices",
+    "subtitle": "Manage and track your invoices",
+    "createInvoice": "Create Invoice",
+    "search": "Search invoices by number, customer, or notes...",
+    "filter": {
+      "title": "Filter by Status",
+      "all": "All Statuses",
+      "draft": "Draft",
+      "sent": "Sent",
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled"
+    },
+    "invoicesCount": "{count, plural, one {# invoice} other {# invoices}}",
+    "loading": "Loading...",
+    "error": "Error loading invoices: {message}",
+    "tryAgain": "Try Again",
+    "empty": "No invoices found",
+    "createFirst": "Create your first invoice",
+    "deleteInvoice": {
+      "title": "Delete Invoice",
+      "description": "Are you sure you want to delete invoice {number}? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete Invoice"
+    },
+    "card": {
+      "viewDetails": "View Details",
+      "editInvoice": "Edit Invoice",
+      "deleteInvoice": "Delete Invoice",
+      "changeStatus": "Change Status",
+      "sendInvoice": "Send Invoice",
+      "markAsPaid": "Mark as Paid",
+      "markAsOverdue": "Mark as Overdue",
+      "cancelInvoice": "Cancel Invoice",
+      "due": "Due {date}"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    }
+  },
+  "customers": {
+    "title": "Customers",
+    "subtitle": "Manage your customer database",
+    "addCustomer": "Add Customer",
+    "search": "Search customers by name or email...",
+    "customersCount": "{count, plural, one {# customer} other {# customers}}",
+    "loading": "Loading...",
+    "error": "Error loading customers: {message}",
+    "tryAgain": "Try Again",
+    "empty": "No customers found",
+    "createFirst": "Create your first customer",
+    "deleteCustomer": {
+      "title": "Delete Customer",
+      "description": "Are you sure you want to delete {name}? This action cannot be undone and will remove all customer data.",
+      "cancel": "Cancel",
+      "confirm": "Delete Customer"
+    },
+    "card": {
+      "viewDetails": "View Details",
+      "editCustomer": "Edit Customer",
+      "deleteCustomer": "Delete Customer",
+      "invoices": "{count, plural, one {# invoice} other {# invoices}}"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back! Here's an overview of your business.",
+    "newInvoice": "New Invoice",
+    "stats": {
+      "totalRevenue": "Total Revenue",
+      "fromPaidInvoices": "From {count, plural, one {# paid invoice} other {# paid invoices}}",
+      "totalInvoices": "Total Invoices",
+      "paidAndPending": "{paid} paid, {pending} pending",
+      "overdueInvoices": "Overdue Invoices",
+      "needsAttention": "Requires immediate attention",
+      "allUpToDate": "All invoices up to date",
+      "totalCustomers": "Total Customers",
+      "activeCustomers": "{count, plural, one {# active relationship} other {# active relationships}}",
+      "noCustomersYet": "No customers yet"
+    },
+    "recentInvoices": {
+      "title": "Recent Invoices",
+      "viewAll": "View All",
+      "noInvoices": "No invoices yet",
+      "createFirst": "Create Your First Invoice"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "createInvoice": "Create New Invoice",
+      "addCustomer": "Add New Customer",
+      "reviewOverdue": "Review Overdue Invoices",
+      "businessSettings": "Business Settings"
+    }
+  },
+  "auth": {
+    "secure": "Secure & Protected",
+    "securedBy": "Secured by Clerk • SSL Encrypted",
+    "noCode": "Didn't receive a code?",
+    "resend": "Resend",
+    "fields": {
+      "email": "Email Address",
+      "password": "Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "verificationCode": "Verification Code",
+      "firstName": "First Name",
+      "lastName": "Last Name"
+    },
+    "placeholders": {
+      "email": "name@example.com",
+      "password": "Enter your password",
+      "newPassword": "Choose a strong new password",
+      "confirmPassword": "Enter your new password again",
+      "verificationCode": "Enter the code you received",
+      "firstName": "John",
+      "lastName": "Doe"
+    },
+    "validation": {
+      "minLength": "At least 8 characters",
+      "passwordsMatch": "Passwords match"
+    },
+    "signIn": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account to continue",
+      "cardTitle": "Sign in to account",
+      "cardDescription": "Enter your login details below",
+      "googleButton": "Sign in with Google",
+      "orContinueWith": "Or continue with",
+      "forgotPassword": "Forgot password?",
+      "submitButton": "Sign In",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account yet?",
+      "signUpLink": "Sign up here"
+    },
+    "signUp": {
+      "title": "Create new account",
+      "subtitle": "Join thousands of businesses managing invoices with ease",
+      "cardTitle": "Create account",
+      "cardDescription": "Fill in the details below to create a new account",
+      "googleButton": "Sign up with Google",
+      "orContinueWith": "Or continue with",
+      "submitButton": "Create Account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in here",
+      "verification": {
+        "title": "Verify your email",
+        "description": "We sent a verification code to {email}",
+        "cardTitle": "Email verification",
+        "cardDescription": "Enter the verification code sent to you",
+        "submitButton": "Verify and complete registration",
+        "submitting": "Verifying..."
+      }
+    },
+    "forgotPassword": {
+      "steps": {
+        "email": {
+          "title": "Reset Password",
+          "description": "Enter your email address and we'll send you a password reset code"
+        },
+        "verification": {
+          "title": "Verify your email",
+          "description": "We sent a verification code to {email}"
+        },
+        "newPassword": {
+          "title": "New Password",
+          "description": "Choose a new strong password for your account"
+        }
+      },
+      "buttons": {
+        "sendCode": "Send reset code",
+        "sendingCode": "Sending code...",
+        "verifyCode": "Verify code",
+        "verifying": "Verifying...",
+        "updatePassword": "Update password",
+        "updating": "Updating password..."
+      },
+      "rememberPassword": "Remember your password?",
+      "backToSignIn": "Back to sign in"
+    },
+    "footer": {
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "copyright": "© 2025 InvoicePro. All rights reserved."
+    }
+  },
+  "auth-errors": {
+    "signIn": {
+      "accountNotFound": "We couldn't find an account with that email",
+      "invalidPassword": "The password you entered is incorrect",
+      "accountLocked": "Too many attempts. Please try again later",
+      "tooManyAttempts": "You’ve been temporarily locked out. Please wait and try again",
+      "identifierExists": "An account with this email already exists",
+      "identifierAlreadyLinked": "This email is already linked to another account",
+      "notAllowed": "Sign-in with these credentials is not allowed"
+    },
+    "signUp": {
+      "emailExists": "This email is already in use",
+      "weakPassword": "Your password is too weak. Please choose a stronger one",
+      "passwordTooShort": "Password must be at least 8 characters long",
+      "passwordMismatch": "Passwords do not match",
+      "identifierExists": "An account with this email already exists"
+    },
+    "verification": {
+      "invalidCode": "The code is invalid or expired",
+      "codeExpired": "The verification code has expired. Please request a new one",
+      "codeIncorrect": "The code you entered is incorrect"
+    },
+    "forgotPassword": {
+      "userNotFound": "No user found with that email address",
+      "invalidCode": "Invalid or expired code",
+      "passwordTooShort": "Password must be at least 8 characters long",
+      "passwordMismatch": "Passwords do not match",
+      "resetFailed": "Could not reset your password. Please try again",
+      "resendFailed": "Could not resend the code at this time. Please try again later"
+    },
+    "oauth": {
+      "googleError": "There was a problem signing in with Google",
+      "notLinked": "No account is linked to this Google account. Please sign up first",
+      "sessionExists": "You are already signed in. Refresh or go to your dashboard"
+    },
+    "general": {
+      "unknown": "An unexpected error occurred. Please try again",
+      "tooManyAttempts": "Too many attempts. Please try again later",
+      "networkError": "Network error. Please check your connection and try again"
+    }
+  },
+  "home": {
+    "nav": {
+      "signIn": "Sign In",
+      "getStarted": "Get Started"
+    },
+    "badge": {
+      "aiFeatures": "Now with AI-powered features"
+    },
+    "hero": {
+      "titleStart": "Streamline Your",
+      "titleHighlight": "Invoice Management",
+      "description": "Create professional invoices, track payments, and manage customers with our intuitive platform designed for modern businesses.",
+      "startFreeTrial": "Start Free Trial",
+      "signInToDashboard": "Sign In to Dashboard"
+    },
+    "trusted": "Trusted by thousands of businesses worldwide",
+    "global": "Global",
+    "clients": "10,000+ clients",
+    "features": {
+      "title": "Everything You Need",
+      "subtitle": "Our platform provides all the tools you need to manage your invoices and grow your business.",
+      "invoiceManagement": {
+        "title": "Smart Invoice Management",
+        "description": "Create, send, and track professional invoices with ease. Automated reminders and payment tracking."
+      },
+      "customerManagement": {
+        "title": "Customer Management",
+        "description": "Organize your customer database with detailed profiles and payment history."
+      },
+      "businessAnalytics": {
+        "title": "Business Analytics",
+        "description": "Get insights into your revenue, payment patterns, and business growth."
+      },
+      "security": {
+        "title": "Secure & Compliant",
+        "description": "Bank-level security with automatic data backups and compliance features."
+      }
+    },
+    "benefits": {
+      "title": "Why Choose InvoicePro?",
+      "subtitle": "Our platform is designed to make invoice management simple, efficient, and stress-free.",
+      "templates": "Professional invoice templates",
+      "reminders": "Automated payment reminders",
+      "multiCurrency": "Multi-currency support",
+      "tracking": "Real-time payment tracking",
+      "portal": "Customer portal access",
+      "responsive": "Mobile-responsive design",
+      "getStarted": "Get Started Today"
+    },
+    "demo": {
+      "invoiceNumber": "Invoice #INV-0001",
+      "paid": "Paid",
+      "client": "Client",
+      "clientName": "Acme Corporation",
+      "amount": "Amount",
+      "amountValue": "$5,000.00",
+      "status": "Status",
+      "statusValue": "Paid on time",
+      "reminder": "Automatically sent reminder"
+    },
+    "cta": {
+      "badge": "Secure & Reliable",
+      "title": "Ready to streamline your invoicing?",
+      "description": "Join thousands of businesses already using InvoicePro to manage their invoices efficiently.",
+      "startTrial": "Start Your Free Trial",
+      "signIn": "Sign In",
+      "noCreditCard": "No credit card required • 14-day free trial • Cancel anytime"
+    },
+    "footer": {
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "help": "Help Center",
+      "contact": "Contact Us",
+      "copyright": "All rights reserved"
+    }
+  }
+}

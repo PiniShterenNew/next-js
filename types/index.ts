@@ -251,3 +251,12 @@ export interface NotificationsResponse extends ApiResponse<Notification[]> {
     totalPages: number
   }
 }
+
+// 
+export interface ClerkError {
+  errors: {
+    code: string
+    message: string
+    meta?: Record<string, any>
+  }[]
+}

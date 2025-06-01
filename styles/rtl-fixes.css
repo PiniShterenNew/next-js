@@ -1,0 +1,61 @@
+/* RTL Fixes for Arabic/Hebrew */
+
+html[dir="rtl"] .rtl-icon {
+  transform: scaleX(-1);
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+html[dir="rtl"] .space-x-3 > * + * {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+html[dir="rtl"] .text-start {
+  text-align: right;
+}
+
+/* Mobile Responsiveness Fixes */
+@media (max-width: 640px) {
+  .container-responsive {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  html[dir="rtl"] .flex-col-reverse-mobile {
+    flex-direction: column-reverse;
+  }
+  
+  .mobile-full-width {
+    width: 100%;
+  }
+  
+  html[dir="rtl"] .mobile-rtl-stack {
+    flex-direction: column;
+  }
+  
+  .mobile-center-text {
+    text-align: center;
+  }
+  
+  html[dir="rtl"] .mobile-center-text {
+    text-align: center;
+  }
+}
+
+/* Fix for benefit items in RTL */
+html[dir="rtl"] .benefit-item {
+  flex-direction: row-reverse;
+}
+
+/* Fix for CTA button with white text */
+.cta-button-contrast {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: white !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+/* Fix for icon alignment in RTL */
+html[dir="rtl"] .icon-text-wrapper {
+  flex-direction: row-reverse;
+}

@@ -1,0 +1,86 @@
+/* RTL and Mobile Fixes */
+
+/* RTL Specific Fixes */
+html[dir="rtl"] .rtl-icon {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .rtl-flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .rtl-text-right {
+  text-align: right;
+}
+
+html[dir="rtl"] .rtl-margin-right {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+html[dir="rtl"] .rtl-margin-left {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Fix for space utilities in RTL */
+html[dir="rtl"] .space-x-3 > * + * {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+html[dir="rtl"] .space-x-4 > * + * {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+/* Mobile Fixes */
+@media (max-width: 640px) {
+  .mobile-full-width {
+    width: 100%;
+  }
+  
+  .mobile-text-center {
+    text-align: center;
+  }
+  
+  .mobile-px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .mobile-py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  /* Fix for mobile RTL */
+  html[dir="rtl"] .mobile-rtl-stack {
+    flex-direction: column;
+  }
+  
+  html[dir="rtl"] .mobile-rtl-reverse {
+    flex-direction: column-reverse;
+  }
+}
+
+/* Fix for white text on white background */
+.contrast-text {
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.contrast-bg {
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Fix for buttons with icons in RTL */
+html[dir="rtl"] .button-with-icon {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .button-with-icon .icon {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
