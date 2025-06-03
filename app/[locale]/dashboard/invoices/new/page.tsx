@@ -7,12 +7,14 @@ import { CreateInvoiceData } from '@/types'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function NewInvoicePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { createInvoice } = useInvoices()
-  
+  const { t } = useTranslation()
+
   // Get pre-selected customer from URL params
   const preSelectedCustomerId = searchParams.get('customerId') || undefined
 
@@ -28,13 +30,13 @@ export default function NewInvoicePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto gap-6">
+    <div className="flex flex-col max-w-4xl mx-auto gap-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Link href="/dashboard/invoices" className="hover:text-foreground transition-colors">
-          <Button variant="ghost" size="sm">
+          <Button variant="secondary" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Invoices
+            {t("invoice.backToInvoices")}
           </Button>
         </Link>
       </div>
@@ -43,7 +45,7 @@ export default function NewInvoicePage() {
       <InvoiceForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        title="Create New Invoice"
+        title={t("invoice.new")}
         preSelectedCustomerId={preSelectedCustomerId}
       />
     </div>

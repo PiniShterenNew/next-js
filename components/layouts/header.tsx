@@ -3,7 +3,7 @@
 
 import { UserButton, useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -21,12 +21,19 @@ import { MobileNav } from './mobile-nav'
 import { useTranslation } from '@/hooks/use-translation'
 
 export function Header() {
-  const { user } = useUser()
+  const { user } = useUser();
+
+
   const { t } = useTranslation()
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center justify-between p-4 gap-3">
+        {/* Mobile navigation */}
+        <div className="lg:hidden">
+          <MobileNav />
+        </div>
+
         {/* Left side - Search and Quick Actions */}
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-2">
@@ -67,18 +74,13 @@ export function Header() {
             <NotificationsDropdown />
           </div>
 
-          {/* Mobile navigation */}
-          <div className="md:hidden">
-            <MobileNav />
-          </div>
-
           {/* User Profile */}
           <div className="flex items-center gap-3">
-            <div className="hidden sm:block text-right">
+            <div className="hidden lg:block text-right">
               <p className="text-sm font-medium m-0">{user?.firstName} {user?.lastName}</p>
               <p className="text-xs text-muted-foreground m-0">{user?.emailAddresses[0]?.emailAddress}</p>
             </div>
-            <UserButton 
+            <UserButton
               appearance={{
                 elements: {
                   avatarBox: "w-8 h-8"

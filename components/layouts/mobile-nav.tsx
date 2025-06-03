@@ -7,6 +7,7 @@ import { Menu } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useTranslation } from '@/hooks/use-translation';
+import { SidebarContent } from './sidebar';
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,23 +19,30 @@ export function MobileNav() {
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
+          className="lg:hidden"
           aria-label={t('navigation.menu')}
         >
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="flex flex-col gap-6 pr-4">
-        <div className="flex flex-col gap-2 mt-8">
-          <h2 className="text-lg font-semibold mb-2">{t('navigation.settings')}</h2>
-          <div className="flex items-center justify-between">
-            <span>{t('settings.appearance')}</span>
+      <SheetContent side="right" className="flex flex-col gap-6 pr-4 ">
+        <SidebarContent setIsOpen={setIsOpen} />
+        <div className="md:hidden flex flex-col gap-2 p-4 text-muted-foreground">
+          <h2 className="text-lg font-semibold mb-2 hidden md:block">{t('navigation.settings')}</h2>
+          <div className="flex text-sm items-center rtl:flex-row-reverse rtl:justify-end">
+            {/* <span>{t('settings.appearance')}</span> */}
             <ThemeToggle />
           </div>
-          <div className="flex items-center justify-between">
-            <span>{t('settings.language')}</span>
+          <div className="flex text-sm items-center rtl:flex-row-reverse rtl:justify-end">
+            {/* <span>{t('settings.language')}</span> */}
             <LanguageSwitcher />
           </div>
+        </div>
+        {/* Footer */}
+        <div className="p-4">
+          <p className="text-xs text-muted-foreground text-center">
+            {t('footer.copyright')}
+          </p>
         </div>
       </SheetContent>
     </Sheet>

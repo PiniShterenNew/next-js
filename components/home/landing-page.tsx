@@ -1,30 +1,23 @@
 "use client"
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   FileText,
   Users,
   ArrowRight,
-  ArrowLeft,
   CheckCircle,
-  Settings,
   BarChart,
-  Printer,
-  Layers,
   Shield,
   Zap,
   Globe,
-  ChevronRight,
-  Star,
-  Sparkles,
-  Clock,
-  CreditCard
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from '@/hooks/use-translation'
 import { useEffect, useState } from 'react'
+import { SimpleThemeToggle } from '../ui/theme-toggle'
+import { SimpleLanguageToggle } from '../language-switcher'
 
 export function LandingPage() {
   const { t } = useTranslation()
@@ -80,22 +73,28 @@ export function LandingPage() {
               </div>
               <span className="text-xl font-bold tracking-tight font-hebrew">{t('appName')}</span>
             </div>
-            <div className="flex items-center gap-4 w-full justify-center hidden sm:flex">
-              <Link href="/sign-in">
-                <Button variant="ghost" className="hover:bg-secondary/80">
-                  {t('home.nav.signIn')}
-                </Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button className="shadow-sm">
-                  {t('home.nav.getStarted')}
-                  {isRTL ? (
-                    <ArrowRight className="me-2 w-4 h-4 rtl-icon" style={{ transform: 'scaleX(-1)' }} />
-                  ) : (
-                    <ArrowRight className="ms-2 w-4 h-4" />
-                  )}
-                </Button>
-              </Link>
+            <div className='flex flex-row ites-center gap-12'>
+              <div className="hidden sm:flex items-center gap-4 w-full justify-center">
+                <Link href="/sign-in">
+                  <Button variant="ghost" className="hover:bg-secondary/80">
+                    {t('home.nav.signIn')}
+                  </Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button className="shadow-sm">
+                    {t('home.nav.getStarted')}
+                    {isRTL ? (
+                      <ArrowRight className="me-2 w-4 h-4 rtl-icon" style={{ transform: 'scaleX(-1)' }} />
+                    ) : (
+                      <ArrowRight className="ms-2 w-4 h-4" />
+                    )}
+                  </Button>
+                </Link>
+              </div>
+              <div className='flex flex-row items-center gap-3'>
+                <SimpleThemeToggle />
+                <SimpleLanguageToggle />
+              </div>
             </div>
           </div>
         </div>
@@ -113,7 +112,7 @@ export function LandingPage() {
               {t('home.badge.aiFeatures')}
             </Badge>
 
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight sm:space-x-2 flex flex-col sm:flex-row items-center justify-center">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight sm:space-x-2 flex flex-col sm:flex-row items-center justify-center ltr:lg:flex-col rtl:space-x-reverse">
               <span> {t('home.hero.titleStart')}</span>
               <span
                 className=" bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent relative inline-block "
@@ -165,7 +164,7 @@ export function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="section-spacing bg-card relative overflow-hidden">
+      <section className="section-spacing pt-16 bg-card relative overflow-hidden">
         <div className="container-responsive">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('home.features.title')}</h2>
@@ -201,7 +200,7 @@ export function LandingPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="section-spacing overflow-hidden">
+      <section className="section-spacing pt-16 overflow-hidden">
         <div className="container-responsive">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="space-y-8 animate-slide-in-left">
@@ -288,7 +287,7 @@ export function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="section-spacing bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground relative overflow-hidden rounded-3xl my-8 mx-4 lg:mx-8 shadow-lg">
+      <section className="section-spacing bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground relative overflow-hidden rounded-3xl my-10 mx-4 p-5 lg:mx-8 shadow-lg">
         <div className="container-responsive text-center relative z-10">
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
             <div className="inline-flex mb-4">

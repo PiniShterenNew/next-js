@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -25,6 +25,7 @@ import { useCustomers } from '@/hooks/use-customers'
 import { useSettings } from '@/hooks/use-settings' // נוסיף את זה
 import { formatCurrency, parseNumber, calculateInvoiceTotal } from '@/lib/utils'
 import { format } from 'date-fns'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface InvoiceFormData {
   customerId: string
@@ -47,18 +48,18 @@ interface InvoiceFormProps {
   preSelectedCustomerId?: string
 }
 
-export function InvoiceForm({ 
-  invoice, 
-  onSubmit, 
-  onCancel, 
+export function InvoiceForm({
+  invoice,
+  onSubmit,
+  onCancel,
   isLoading = false,
-  title = invoice ? 'Edit Invoice' : 'Create New Invoice',
+  title = "",
   preSelectedCustomerId
 }: InvoiceFormProps) {
   // טוען הגדרות המשתמש לקבלת שיעור המס
   const { settings, loading: settingsLoading } = useSettings()
   const { customers } = useCustomers({ limit: 100 })
-
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
@@ -90,7 +91,7 @@ export function InvoiceForm({
   // Calculate totals using tax rate from settings
   const calculations = useMemo(() => {
     if (!settings) return { subtotal: 0, tax: 0, discount: 0, total: 0 }
-    
+
     const subtotal = watchedItems.reduce((sum, item) => {
       const quantity = parseNumber(item.quantity || '0')
       const unitPrice = parseNumber(item.unitPrice || '0')
@@ -98,7 +99,7 @@ export function InvoiceForm({
     }, 0)
 
     const discount = parseNumber(watchedDiscount || '0')
-    
+
     // Use tax rate from settings, if tax rate is 0, tax is disabled
     const taxRate = Number(settings.taxRate) || 0
     return calculateInvoiceTotal(subtotal, taxRate, discount)
@@ -111,14 +112,14 @@ export function InvoiceForm({
       setValue('dueDate', format(new Date(invoice.dueDate), 'yyyy-MM-dd'))
       setValue('notes', invoice.notes || '')
       setValue('discount', invoice.discount.toString())
-      
+
       // Set items
       const formattedItems = invoice.items.map(item => ({
         description: item.description,
         quantity: item.quantity.toString(),
         unitPrice: item.unitPrice.toString(),
       }))
-      
+
       // Clear existing items and set new ones
       while (fields.length > 0) {
         remove(0)
@@ -141,9 +142,9 @@ export function InvoiceForm({
           unitPrice: parseNumber(item.unitPrice),
         })).filter(item => item.description && item.quantity > 0 && item.unitPrice >= 0)
       }
-      
+
       await onSubmit(submitData)
-      
+
       if (!invoice) {
         reset()
       }
@@ -169,7 +170,7 @@ export function InvoiceForm({
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Loading form...
+            {t("invoice.loading")}
           </div>
         </CardContent>
       </Card>
@@ -177,11 +178,11 @@ export function InvoiceForm({
   }
 
   return (
-    <div className="gap-6">
-      <Card>
+    <div>
+      <Card >
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            {title}
+            {(invoice ? t("invoice.edit") : title)}
             {invoice && (
               <Badge variant="secondary">
                 {invoice.invoiceNumber}
@@ -189,14 +190,14 @@ export function InvoiceForm({
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(handleFormSubmit)} className="gap-6">
+        <CardContent >
+          <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-6">
             {/* Customer and Due Date */}
             <div className="grid gap-6 md:grid-cols-2">
               {/* Customer Selection */}
               <div className="form-group">
                 <Label htmlFor="customerId" className="form-label">
-                  Customer *
+                  {t("invoice.customer")} *
                 </Label>
                 <Select
                   value={watch('customerId')}
@@ -204,7 +205,7 @@ export function InvoiceForm({
                   disabled={isLoading || isSubmitting}
                 >
                   <SelectTrigger className={errors.customerId ? 'border-destructive' : ''}>
-                    <SelectValue placeholder="Select a customer" />
+                    <SelectValue placeholder={t("invoice.customerPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {customers.map((customer) => (
@@ -225,7 +226,7 @@ export function InvoiceForm({
               {/* Due Date */}
               <div className="form-group">
                 <Label htmlFor="dueDate" className="form-label">
-                  Due Date *
+                  {t("invoice.dueDate")} *
                 </Label>
                 <Input
                   id="dueDate"
@@ -240,10 +241,12 @@ export function InvoiceForm({
               </div>
             </div>
 
+            <Separator />
+
             {/* Invoice Items */}
-            <div className="gap-4">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">Invoice Items *</Label>
+                <Label className="text-base font-semibold">{t("invoice.items")} *</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -252,25 +255,25 @@ export function InvoiceForm({
                   disabled={isLoading || isSubmitting}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Item
+                  {t("invoice.addItem")}
                 </Button>
               </div>
 
-              <div className="gap-3">
+              <div>
                 {fields.map((field, index) => (
                   <Card key={field.id} className="p-4">
-                    <div className="grid gap-4 md:grid-cols-12 items-start">
+                    <div className="grid gap-4 md:grid-cols-12 items-end">
                       {/* Description */}
                       <div className="md:col-span-5">
-                        <Label className="text-sm">Description</Label>
+                        <Label className="text-sm">{t("invoice.itemDescription")}</Label>
                         <Input
                           {...register(`items.${index}.description`)}
-                          placeholder="Item description"
+                          placeholder={t("invoice.itemDescription")}
                           disabled={isLoading || isSubmitting}
                           className={errors.items?.[index]?.description ? 'border-destructive' : ''}
                         />
                         {errors.items?.[index]?.description && (
-                          <p className="text-xs text-destructive mt-1">
+                          <p className="form-error">
                             {errors.items[index]?.description?.message}
                           </p>
                         )}
@@ -278,7 +281,7 @@ export function InvoiceForm({
 
                       {/* Quantity */}
                       <div className="md:col-span-2">
-                        <Label className="text-sm">Quantity</Label>
+                        <Label className="text-sm">{t("invoice.itemQuantity")}</Label>
                         <Input
                           {...register(`items.${index}.quantity`)}
                           type="number"
@@ -297,7 +300,7 @@ export function InvoiceForm({
 
                       {/* Unit Price */}
                       <div className="md:col-span-2">
-                        <Label className="text-sm">Unit Price</Label>
+                        <Label className="text-sm">{t("invoice.itemUnitPrice")}</Label>
                         <Input
                           {...register(`items.${index}.unitPrice`)}
                           type="number"
@@ -316,10 +319,10 @@ export function InvoiceForm({
 
                       {/* Total */}
                       <div className="md:col-span-2">
-                        <Label className="text-sm">Total</Label>
+                        <Label className="text-sm">{t("invoice.itemTotal")}</Label>
                         <div className="h-10 px-3 py-2 bg-muted rounded-md text-sm flex items-center">
                           {formatCurrency(
-                            parseNumber(watchedItems[index]?.quantity || '0') * 
+                            parseNumber(watchedItems[index]?.quantity || '0') *
                             parseNumber(watchedItems[index]?.unitPrice || '0')
                           )}
                         </div>
@@ -349,11 +352,11 @@ export function InvoiceForm({
             </div>
 
             {/* Discount and Notes */}
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-1">
               {/* Discount */}
               <div className="form-group">
                 <Label htmlFor="discount" className="form-label">
-                  Discount Amount
+                  {t("invoice.discount")}
                 </Label>
                 <Input
                   id="discount"
@@ -373,12 +376,12 @@ export function InvoiceForm({
               {/* Notes */}
               <div className="form-group">
                 <Label htmlFor="notes" className="form-label">
-                  Notes
+                  {t("invoice.notes")}
                 </Label>
                 <Textarea
                   id="notes"
                   {...register('notes')}
-                  placeholder="Additional notes or payment terms"
+                  placeholder={t("invoice.notesPlaceholder")}
                   rows={3}
                   disabled={isLoading || isSubmitting}
                   className={errors.notes ? 'border-destructive' : ''}
@@ -397,7 +400,7 @@ export function InvoiceForm({
                 <Calculator className="w-4 h-4 mr-2" />
                 <span className="font-semibold">Invoice Summary</span>
               </div>
-              <div className="gap-2 text-sm">
+              <div className="flex flex-col gap-2 text-sm">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span>{formatCurrency(calculations.subtotal)}</span>
@@ -428,7 +431,7 @@ export function InvoiceForm({
               {onCancel && (
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={onCancel}
                   disabled={isLoading || isSubmitting}
                 >

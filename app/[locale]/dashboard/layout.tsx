@@ -13,9 +13,9 @@ export default function DashboardLayout({
       <Sidebar />
       
       {/* Main content with margin for desktop sidebar */}
-      <div className="lg:ml-72 rtl:mr-72 rtl:ml-0">
+      <div className="m-0 lg:ml-72 lg:rtl:mr-72 lg:rtl:ml-0">
         <Header />
-        <main className="container-responsive section-spacing">
+        <main className="container-responsive section-spacing py-5">
           {children}
         </main>
       </div>

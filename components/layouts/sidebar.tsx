@@ -5,9 +5,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useUnreadNotificationsCount } from '@/hooks/use-notifications'
 import { useTranslation } from '@/hooks/use-translation'
 import {
@@ -15,68 +13,14 @@ import {
   FileText,
   Users,
   Settings,
-  Menu,
   Receipt,
   Plus,
   Bell
 } from 'lucide-react'
 import { useLocale } from 'next-intl'
 
-const sidebarItems = [
-  {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'Invoices',
-    href: '/dashboard/invoices',
-    icon: FileText,
-    children: [
-      {
-        title: 'All Invoices',
-        href: '/dashboard/invoices',
-        icon: Receipt,
-      },
-      {
-        title: 'Create Invoice',
-        href: '/dashboard/invoices/new',
-        icon: Plus,
-      },
-    ],
-  },
-  {
-    title: 'Customers',
-    href: '/dashboard/customers',
-    icon: Users,
-    children: [
-      {
-        title: 'All Customers',
-        href: '/dashboard/customers',
-        icon: Users,
-      },
-      {
-        title: 'Add Customer',
-        href: '/dashboard/customers/new',
-        icon: Plus,
-      },
-    ],
-  },
-  {
-    title: 'Notifications',
-    href: '/dashboard/notifications',
-    icon: Bell,
-  },
-  {
-    title: 'Settings',
-    href: '/dashboard/settings',
-    icon: Settings,
-  },
-]
-
-export function Sidebar() {
+export const SidebarContent = ({setIsOpen}: {setIsOpen: (isOpen: boolean) => void}) => {
   const pathname = usePathname()
-  const [isOpen, setIsOpen] = useState(false)
   const { unreadCount } = useUnreadNotificationsCount()
   const { t } = useTranslation()
 
@@ -132,8 +76,8 @@ export function Sidebar() {
     },
   ], [t])
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full border-l border-border bg-card">
+  return (
+    <div className="flex flex-col lg:h-full lg:border-l border-border bg-card">
       {/* Logo */}
       <div className="p-6">
         <Link href="/dashboard" className="flex items-center gap-2">
@@ -158,35 +102,23 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4">
+      <div className="hidden lg:block p-4">
         <p className="text-xs text-muted-foreground text-center">
           {t('footer.copyright')}
         </p>
       </div>
     </div>
   )
+}
+
+export function Sidebar() {
+
 
   return (
     <>
-      {/* Mobile Sidebar */}
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden fixed top-4 left-4 z-40"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-72">
-          <SidebarContent />
-        </SheetContent>
-      </Sheet>
-
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex lg:w-72 lg:flex-col lg:fixed lg:inset-y-0 border-r border-border bg-card">
-        <SidebarContent />
+        <SidebarContent setIsOpen={() => {}} />
       </div>
     </>
   )
