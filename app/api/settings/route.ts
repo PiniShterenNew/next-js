@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { userSettingsSchema } from '@/lib/validations'
 import { ApiResponse, UserSettings } from '@/types'
+import { NotificationService } from '@/lib/notification-service'
 
 // GET /api/settings - קבלת הגדרות המשתמש
 export async function GET(request: NextRequest) {
@@ -96,6 +97,13 @@ export async function PUT(request: NextRequest) {
         userId: user.id,
       }
     })
+
+    // יצירת התראה על עדכון הגדרות
+    try {
+      await NotificationService.notifySettingsUpdated(user.id)
+    } catch (error) {
+      console.error('Failed to create settings notification:', error)
+    }
 
     return NextResponse.json({
       success: true,

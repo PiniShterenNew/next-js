@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { customerSchema } from '@/lib/validations'
 import { ApiResponse, Customer } from '@/types'
+import { NotificationService } from '@/lib/notification-service'
 
 // GET /api/customers - קבלת כל הלקוחות של המשתמש
 export async function GET(request: NextRequest) {
@@ -156,6 +157,16 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+
+    // יצירת התראה על לקוח חדש
+    try {
+      await NotificationService.notifyCustomerCreated({
+        ...customer,
+        userId: user.id
+      })
+    } catch (error) {
+      console.error('Failed to create customer notification:', error)
+    }
 
     return NextResponse.json(
       { 
