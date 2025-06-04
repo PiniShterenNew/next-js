@@ -99,7 +99,8 @@ export class NotificationService {
           invoiceNumber: invoice.invoiceNumber,
           customerName: invoice.customer?.name,
           deletedAt: new Date()
-        }
+        },
+        actionUrl: undefined
       })
     } catch (error) {
       console.error('❌ Failed to create invoice deleted notification:', error)
