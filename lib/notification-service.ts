@@ -191,6 +191,76 @@ export class NotificationService {
   }
 
   /**
+   * התראה על יצירת לקוח חדש
+   */
+  static async notifyCustomerCreated(customer: any) {
+    try {
+      await this.createNotification({
+        userId: customer.userId,
+        type: NotificationType.CUSTOMER_CREATED,
+        title: 'Customer Created',
+        message: `Customer ${customer.name} was created successfully`,
+        data: { customerId: customer.id, customerName: customer.name },
+        actionUrl: `/dashboard/customers/${customer.id}`
+      })
+    } catch (error) {
+      console.error('❌ Failed to create customer created notification:', error)
+    }
+  }
+
+  /**
+   * התראה על עדכון לקוח
+   */
+  static async notifyCustomerUpdated(customer: any) {
+    try {
+      await this.createNotification({
+        userId: customer.userId,
+        type: NotificationType.CUSTOMER_UPDATED,
+        title: 'Customer Updated',
+        message: `Customer ${customer.name} was updated`,
+        data: { customerId: customer.id, customerName: customer.name },
+        actionUrl: `/dashboard/customers/${customer.id}`
+      })
+    } catch (error) {
+      console.error('❌ Failed to create customer updated notification:', error)
+    }
+  }
+
+  /**
+   * התראה על מחיקת לקוח
+   */
+  static async notifyCustomerDeleted(customer: any) {
+    try {
+      await this.createNotification({
+        userId: customer.userId,
+        type: NotificationType.CUSTOMER_DELETED,
+        title: 'Customer Deleted',
+        message: `Customer ${customer.name} was deleted`,
+        data: { customerId: customer.id, customerName: customer.name }
+      })
+    } catch (error) {
+      console.error('❌ Failed to create customer deleted notification:', error)
+    }
+  }
+
+  /**
+   * התראה על עדכון הגדרות
+   */
+  static async notifySettingsUpdated(userId: string) {
+    try {
+      await this.createNotification({
+        userId,
+        type: NotificationType.SETTINGS_UPDATED,
+        title: 'Settings Updated',
+        message: 'Your settings were updated successfully',
+        actionUrl: '/dashboard/settings'
+      })
+    } catch (error) {
+      console.error('❌ Failed to create settings updated notification:', error)
+    }
+  }
+
+  /**
    * בדיקת חשבוניות שעברו פירעון (לCron job)
    */
   static async checkOverdueInvoices() {

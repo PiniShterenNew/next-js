@@ -172,26 +172,12 @@ export async function PUT(
 
     // יצירת התראה על עדכון לקוח
     try {
-      // זיהוי השדות שהשתנו
-      const updatedFields = Object.keys(validatedData).filter(key => {
-        const k = key as keyof typeof validatedData;
-        return validatedData[k] !== existingCustomer[k as keyof typeof existingCustomer];
-      });
-      
-      // המרת האובייקט לטיפוס הנכון - המרת null ל-undefined
-      const customerForNotification = {
+      await NotificationService.notifyCustomerUpdated({
         ...updatedCustomer,
-        userId: user.id,
-        phone: updatedCustomer.phone || undefined,
-        address: updatedCustomer.address || undefined,
-        taxId: updatedCustomer.taxId || undefined
-      };
-      
-      await NotificationService.notifyCustomerUpdated(customerForNotification, updatedFields)
-      console.log(`✅ Customer update notification created for customer ID: ${updatedCustomer.id}, user ID: ${user.id}`)
+        userId: user.id
+      })
     } catch (error) {
-      console.error('Failed to create customer updated notification:', error)
-      // לא נכשיל את הבקשה אם יצירת ההתראה נכשלה
+      console.error('Failed to create customer update notification:', error)
     }
 
     return NextResponse.json({
@@ -285,20 +271,12 @@ export async function DELETE(
 
     // יצירת התראה על מחיקת לקוח
     try {
-      // המרת האובייקט לטיפוס הנכון - המרת null ל-undefined
-      const customerForNotification = {
+      await NotificationService.notifyCustomerDeleted({
         ...customer,
-        userId: user.id,
-        phone: customer.phone || undefined,
-        address: customer.address || undefined,
-        taxId: customer.taxId || undefined
-      };
-      
-      await NotificationService.notifyCustomerDeleted(customerForNotification)
-      console.log(`✅ Customer delete notification created for customer ID: ${customer.id}, user ID: ${user.id}`)
+        userId: user.id
+      })
     } catch (error) {
-      console.error('Failed to create customer deleted notification:', error)
-      // לא נכשיל את הבקשה אם יצירת ההתראה נכשלה
+      console.error('Failed to create customer delete notification:', error)
     }
 
     return NextResponse.json({

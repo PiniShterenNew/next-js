@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { userSettingsSchema } from '@/lib/validations'
-import { ApiResponse, type UserSettings } from '@/types'
+import { ApiResponse, UserSettings } from '@/types'
 import { NotificationService } from '@/lib/notification-service'
 
 // GET /api/settings - קבלת הגדרות המשתמש
@@ -103,55 +103,16 @@ export async function PUT(request: NextRequest) {
       where: { userId: user.id }
     })
 
-    if (!currentSettings) {
-      return NextResponse.json(
-        { success: false, error: 'Settings not found' } as ApiResponse,
-        { status: 404 }
-      )
-    }
-
-    // עדכון ההגדרות
-    const updatedSettings = await db.userSettings.update({
-      where: { userId: user.id },
-      data: validatedData,
-    })
-
-    // מציאת השדות שהשתנו
-    const updatedFields = Object.keys(validatedData).filter(
-      key => JSON.stringify(validatedData[key as keyof typeof validatedData]) !== 
-            JSON.stringify(currentSettings[key as keyof typeof currentSettings])
-    )
-
-    // המרת Decimal למספר רגיל וטיפול בערכים null
-    const serializedUpdatedSettings: UserSettings = {
-      ...updatedSettings,
-      taxRate: updatedSettings.taxRate.toNumber(),
-      businessName: updatedSettings.businessName || undefined,
-      businessAddress: updatedSettings.businessAddress || undefined,
-      businessPhone: updatedSettings.businessPhone || undefined,
-      businessEmail: updatedSettings.businessEmail || undefined,
-    }
-
-    // שליחת התראה על עדכון הגדרות
-    if (updatedFields.length > 0) {
-      try {
-        // המרת האובייקט לטיפוס הנכון
-        const settingsForNotification = {
-          ...serializedUpdatedSettings,
-          userId: user.id
-        };
-        
-        await NotificationService.notifySettingsUpdated(settingsForNotification, updatedFields)
-        console.log(`✅ Settings update notification created for user ID: ${user.id}`)
-      } catch (error) {
-        console.error('❌ Failed to create settings update notification:', error)
-        // לא נכשיל את הבקשה אם יצירת ההתראה נכשלה
-      }
+    // יצירת התראה על עדכון הגדרות
+    try {
+      await NotificationService.notifySettingsUpdated(user.id)
+    } catch (error) {
+      console.error('Failed to create settings notification:', error)
     }
 
     return NextResponse.json({
       success: true,
-      data: serializedUpdatedSettings,
+      data: validatedData,
       message: 'Settings updated successfully'
     } as ApiResponse<UserSettings>)
 
