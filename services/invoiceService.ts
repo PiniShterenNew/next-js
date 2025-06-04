@@ -1,8 +1,8 @@
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 import type { InvoiceItem } from '@/types';
 
-export async function createInvoice(data: { clientName: string, items: InvoiceItem[] }) {
-  return prisma.invoice.create({
+export async function createInvoice(data: { clientName: string; items: InvoiceItem[] }) {
+  return db.invoice.create({
     data: {
       clientName: data.clientName,
       items: {
@@ -19,5 +19,5 @@ export async function createInvoice(data: { clientName: string, items: InvoiceIt
 
 // שלוף קבלות
 export async function getInvoices() {
-  return prisma.invoice.findMany({ include: { items: true } });
+  return db.invoice.findMany({ include: { items: true } });
 }
