@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import type { InvoiceItem } from '@/types';
 
-export async function createInvoice(data: { clientName: string; items: InvoiceItem[] }) {
+export async function createInvoice(data: { clientName: string, items: InvoiceItem[] }) {
   return db.invoice.create({
     data: {
       clientName: data.clientName,
