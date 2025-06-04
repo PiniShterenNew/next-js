@@ -7,9 +7,11 @@ import { CreateCustomerData } from '@/types'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function NewCustomerPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const { createCustomer } = useCustomers()
 
   const handleSubmit = async (data: CreateCustomerData) => {
@@ -24,13 +26,13 @@ export default function NewCustomerPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto gap-6">
+    <div className="max-w-2xl mx-auto flex flex-col gap-4">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Link href="/dashboard/customers" className="hover:text-foreground transition-colors">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Customers
+            {t('customer.newEdit.back')}
           </Button>
         </Link>
       </div>

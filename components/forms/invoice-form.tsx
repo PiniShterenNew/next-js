@@ -1,10 +1,10 @@
-// components/forms/invoice-form.tsx - תיקון לשימוש בהגדרות המס
+// components/forms/invoice-form.tsx - רכיב מתוקן עם טעינת נתונים נכונה
 'use client'
 
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { invoiceFormSchema } from '@/lib/validations'
-import { Invoice, CreateInvoiceData, UpdateInvoiceData, Customer } from '@/types'
+import { Invoice, CreateInvoiceData, UpdateInvoiceData } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,9 +20,9 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Save, X, Plus, Trash2, Calculator } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useCustomers } from '@/hooks/use-customers'
-import { useSettings } from '@/hooks/use-settings' // נוסיף את זה
+import { useSettings } from '@/hooks/use-settings'
 import { formatCurrency, parseNumber, calculateInvoiceTotal } from '@/lib/utils'
 import { format } from 'date-fns'
 import { useTranslation } from '@/hooks/use-translation'
@@ -56,10 +56,42 @@ export function InvoiceForm({
   title = "",
   preSelectedCustomerId
 }: InvoiceFormProps) {
-  // טוען הגדרות המשתמש לקבלת שיעור המס
+  // ✅ 1. טעינת dependencies
   const { settings, loading: settingsLoading } = useSettings()
   const { customers } = useCustomers({ limit: 100 })
-  const { t } = useTranslation();
+  const { t } = useTranslation()
+  
+  // ✅ 2. State למעקב אחר מוכנות הטופס
+  const [isFormReady, setIsFormReady] = useState(false)
+
+  // ✅ 3. פונקציה לחישוב ערכי ברירת מחדל דינמיים
+  const getDefaultValues = useCallback((): InvoiceFormData => {
+    if (invoice) {
+      // מצב עריכה - השתמש בנתוני החשבונית הקיימת
+      return {
+        customerId: invoice.customerId || '',
+        dueDate: format(new Date(invoice.dueDate), 'yyyy-MM-dd'),
+        notes: invoice.notes || '',
+        discount: invoice.discount?.toString() || '0',
+        items: invoice.items?.length > 0 ? invoice.items.map(item => ({
+          description: item.description || '',
+          quantity: item.quantity?.toString() || '1',
+          unitPrice: item.unitPrice?.toString() || '0',
+        })) : [{ description: '', quantity: '1', unitPrice: '0' }]
+      }
+    } else {
+      // מצב יצירה חדשה - ערכי ברירת מחדל
+      return {
+        customerId: preSelectedCustomerId || '',
+        dueDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
+        notes: '',
+        discount: '0',
+        items: [{ description: '', quantity: '1', unitPrice: '0' }],
+      }
+    }
+  }, [invoice, preSelectedCustomerId])
+
+  // ✅ 4. אתחול הטופס עם ערכי ברירת מחדל דינמיים
   const {
     register,
     handleSubmit,
@@ -70,13 +102,7 @@ export function InvoiceForm({
     control,
   } = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceFormSchema),
-    defaultValues: {
-      customerId: preSelectedCustomerId || '',
-      dueDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-      notes: '',
-      discount: '0',
-      items: [{ description: '', quantity: '1', unitPrice: '0' }],
-    },
+    defaultValues: getDefaultValues(),
   })
 
   const { fields, append, remove } = useFieldArray({
@@ -84,75 +110,78 @@ export function InvoiceForm({
     name: 'items',
   })
 
-  // Watch form values for calculations
-  const watchedItems = watch('items')
-  const watchedDiscount = watch('discount')
+  // ✅ 5. Reset הטופס כשהחשבונית משתנה
+  useEffect(() => {
+    if (invoice) {
+      // יש חשבונית - עריכה
+      const formData = getDefaultValues()
+      reset(formData)
+      setIsFormReady(true)
+    } else if (!invoice && !isLoading) {
+      // אין חשבונית ולא בטעינה - יצירה חדשה
+      const formData = getDefaultValues()
+      reset(formData)
+      setIsFormReady(true)
+    }
+  }, [invoice, reset, getDefaultValues, isLoading])
 
-  // Calculate totals using tax rate from settings
+  // ✅ 6. וידוא שהטופס מוכן לטפסים חדשים
+  useEffect(() => {
+    if (!invoice && !preSelectedCustomerId && !isLoading) {
+      setIsFormReady(true)
+    }
+  }, [invoice, preSelectedCustomerId, isLoading])
+
+  // ✅ 7. Watch form values לחישובים (עם safe access)
+  const watchedItems = useWatch({ control, name: 'items' })
+  const watchedDiscount = useWatch({ control, name: 'discount' })
+
+  // ✅ 8. חישוב סיכומים עם הגנה מפני undefined
   const calculations = useMemo(() => {
     if (!settings) return { subtotal: 0, tax: 0, discount: 0, total: 0 }
 
-    const subtotal = watchedItems.reduce((sum, item) => {
+    const subtotal = watchedItems?.reduce((sum, item) => {
+      if (!item) return sum
       const quantity = parseNumber(item.quantity || '0')
       const unitPrice = parseNumber(item.unitPrice || '0')
       return sum + (quantity * unitPrice)
-    }, 0)
+    }, 0) || 0
 
     const discount = parseNumber(watchedDiscount || '0')
-
-    // Use tax rate from settings, if tax rate is 0, tax is disabled
     const taxRate = Number(settings.taxRate) || 0
     return calculateInvoiceTotal(subtotal, taxRate, discount)
   }, [watchedItems, watchedDiscount, settings])
 
-  // Set form values when editing
-  useEffect(() => {
-    if (invoice) {
-      setValue('customerId', invoice.customerId)
-      setValue('dueDate', format(new Date(invoice.dueDate), 'yyyy-MM-dd'))
-      setValue('notes', invoice.notes || '')
-      setValue('discount', invoice.discount.toString())
-
-      // Set items
-      const formattedItems = invoice.items.map(item => ({
-        description: item.description,
-        quantity: item.quantity.toString(),
-        unitPrice: item.unitPrice.toString(),
-      }))
-
-      // Clear existing items and set new ones
-      while (fields.length > 0) {
-        remove(0)
-      }
-      formattedItems.forEach(item => append(item))
-    }
-  }, [invoice, setValue, fields.length, remove, append])
-
-  const handleFormSubmit = async (data: any) => {
-    const formData = data as InvoiceFormData
+  // ✅ 9. טיפול בשליחת הטופס
+  const handleFormSubmit = async (data: InvoiceFormData) => {
     try {
       const submitData = {
-        customerId: formData.customerId,
-        dueDate: new Date(formData.dueDate),
-        notes: formData.notes.trim() || undefined,
-        discount: parseNumber(formData.discount),
-        items: formData.items.map(item => ({
-          description: item.description.trim(),
-          quantity: parseNumber(item.quantity),
-          unitPrice: parseNumber(item.unitPrice),
-        })).filter(item => item.description && item.quantity > 0 && item.unitPrice >= 0)
+        customerId: data.customerId,
+        dueDate: new Date(data.dueDate),
+        notes: data.notes?.trim() || undefined,
+        discount: parseNumber(data.discount || '0'),
+        items: data.items
+          ?.map(item => ({
+            description: item.description?.trim() || '',
+            quantity: parseNumber(item.quantity || '0'),
+            unitPrice: parseNumber(item.unitPrice || '0'),
+          }))
+          .filter(item => item.description && item.quantity > 0 && item.unitPrice >= 0) || []
       }
 
       await onSubmit(submitData)
 
+      // אם זה טופס חדש, נקה אותו
       if (!invoice) {
-        reset()
+        const newFormData = getDefaultValues()
+        reset(newFormData)
       }
     } catch (error) {
       console.error('Form submission error:', error)
     }
   }
 
+  // ✅ 10. פונקציות עזר
   const addItem = () => {
     append({ description: '', quantity: '1', unitPrice: '0' })
   }
@@ -163,26 +192,34 @@ export function InvoiceForm({
     }
   }
 
-  // אם ההגדרות עדיין לא נטענו
-  if (settingsLoading) {
+  // ✅ 11. Loading states - הצגת טעינה עד שהטופס מוכן
+  if (settingsLoading || !isFormReady) {
     return (
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            {t("invoice.loading")}
+            <span>
+              {settingsLoading 
+                ? t("invoice.loading") 
+                : invoice 
+                  ? 'טוען נתוני החשבונית...' 
+                  : 'מכין טופס חדש...'
+              }
+            </span>
           </div>
         </CardContent>
       </Card>
     )
   }
 
+  // ✅ 12. רינדור הטופס עם key ייחודי
   return (
     <div>
-      <Card >
+      <Card key={invoice?.id || 'new-invoice'}> {/* Key ייחודי לכל חשבונית */}
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            {(invoice ? t("invoice.edit") : title)}
+            {invoice ? t("invoice.edit") : title}
             {invoice && (
               <Badge variant="secondary">
                 {invoice.invoiceNumber}
@@ -190,17 +227,19 @@ export function InvoiceForm({
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent >
+        <CardContent>
           <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-6">
-            {/* Customer and Due Date */}
+            
+            {/* ✅ Customer and Due Date Section */}
             <div className="grid gap-6 md:grid-cols-2">
+              
               {/* Customer Selection */}
               <div className="form-group">
                 <Label htmlFor="customerId" className="form-label">
                   {t("invoice.customer")} *
                 </Label>
                 <Select
-                  value={watch('customerId')}
+                  value={watch('customerId') || ''}
                   onValueChange={(value) => setValue('customerId', value)}
                   disabled={isLoading || isSubmitting}
                 >
@@ -208,7 +247,7 @@ export function InvoiceForm({
                     <SelectValue placeholder={t("invoice.customerPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {customers.map((customer) => (
+                    {customers?.map((customer) => (
                       <SelectItem key={customer.id} value={customer.id}>
                         <div>
                           <div className="font-medium">{customer.name}</div>
@@ -243,7 +282,7 @@ export function InvoiceForm({
 
             <Separator />
 
-            {/* Invoice Items */}
+            {/* ✅ Invoice Items Section */}
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <Label className="text-base font-semibold">{t("invoice.items")} *</Label>
@@ -259,10 +298,11 @@ export function InvoiceForm({
                 </Button>
               </div>
 
-              <div>
+              <div className="space-y-4">
                 {fields.map((field, index) => (
                   <Card key={field.id} className="p-4">
                     <div className="grid gap-4 md:grid-cols-12 items-end">
+                      
                       {/* Description */}
                       <div className="md:col-span-5">
                         <Label className="text-sm">{t("invoice.itemDescription")}</Label>
@@ -286,7 +326,7 @@ export function InvoiceForm({
                           {...register(`items.${index}.quantity`)}
                           type="number"
                           min="0"
-                          step="0.01"
+                          step="1"
                           placeholder="1"
                           disabled={isLoading || isSubmitting}
                           className={errors.items?.[index]?.quantity ? 'border-destructive' : ''}
@@ -322,8 +362,8 @@ export function InvoiceForm({
                         <Label className="text-sm">{t("invoice.itemTotal")}</Label>
                         <div className="h-10 px-3 py-2 bg-muted rounded-md text-sm flex items-center">
                           {formatCurrency(
-                            parseNumber(watchedItems[index]?.quantity || '0') *
-                            parseNumber(watchedItems[index]?.unitPrice || '0')
+                            parseNumber(watchedItems?.[index]?.quantity || '0') *
+                            parseNumber(watchedItems?.[index]?.unitPrice || '0')
                           )}
                         </div>
                       </div>
@@ -351,8 +391,9 @@ export function InvoiceForm({
               )}
             </div>
 
-            {/* Discount and Notes */}
+            {/* ✅ Discount and Notes Section */}
             <div className="grid gap-6 md:grid-cols-1">
+              
               {/* Discount */}
               <div className="form-group">
                 <Label htmlFor="discount" className="form-label">
@@ -394,39 +435,38 @@ export function InvoiceForm({
 
             <Separator />
 
-            {/* Calculations Summary */}
+            {/* ✅ Calculations Summary */}
             <div className="bg-muted/50 p-4 rounded-lg">
               <div className="flex items-center mb-3">
                 <Calculator className="w-4 h-4 mr-2" />
-                <span className="font-semibold">Invoice Summary</span>
+                <span className="font-semibold">סיכום החשבונית</span>
               </div>
               <div className="flex flex-col gap-2 text-sm">
                 <div className="flex justify-between">
-                  <span>Subtotal:</span>
+                  <span>סכום ביניים:</span>
                   <span>{formatCurrency(calculations.subtotal)}</span>
                 </div>
                 {calculations.discount > 0 && (
                   <div className="flex justify-between text-destructive">
-                    <span>Discount:</span>
+                    <span>הנחה:</span>
                     <span>-{formatCurrency(calculations.discount)}</span>
                   </div>
                 )}
-                {/* Only show tax line if tax rate is greater than 0 */}
-                {Number(settings?.taxRate) > 0 && (
+                {Number(settings?.taxRate || 0) > 0 && (
                   <div className="flex justify-between">
-                    <span>Tax ({settings?.taxRate || 0}%):</span>
+                    <span>מס ({settings?.taxRate || 0}%):</span>
                     <span>{formatCurrency(calculations.tax)}</span>
                   </div>
                 )}
                 <Separator />
                 <div className="flex justify-between font-semibold text-base">
-                  <span>Total:</span>
+                  <span>סך הכל:</span>
                   <span>{formatCurrency(calculations.total)}</span>
                 </div>
               </div>
             </div>
 
-            {/* Form Actions */}
+            {/* ✅ Form Actions */}
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
               {onCancel && (
                 <Button
@@ -436,7 +476,7 @@ export function InvoiceForm({
                   disabled={isLoading || isSubmitting}
                 >
                   <X className="w-4 h-4 mr-2" />
-                  Cancel
+                  ביטול
                 </Button>
               )}
               <Button
@@ -447,12 +487,12 @@ export function InvoiceForm({
                 {(isLoading || isSubmitting) ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {invoice ? 'Updating...' : 'Creating...'}
+                    {invoice ? 'מעדכן...' : 'יוצר...'}
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    {invoice ? 'Update Invoice' : 'Create Invoice'}
+                    {invoice ? 'עדכן חשבונית' : 'צור חשבונית'}
                   </>
                 )}
               </Button>

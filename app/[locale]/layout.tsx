@@ -103,7 +103,7 @@ export default async function AppLayout({
   children,
   params
 }: AppLayoutProps) {
-  const locale = params.locale || 'en';
+  const locale = (await params).locale || 'en';
   const messages = await getMessages(locale);
   const isRTL = locale === 'he';
 

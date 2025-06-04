@@ -185,7 +185,7 @@ export function SidebarItem({ item, pathname, unreadCount, onItemClick }: Sideba
         </button>
 
         {isExpanded && (
-          <div className="ml-4 gap-1">
+          <div className="flex flex-col my-2 ml-4 gap-2">
             {item.children.map((child) => (
               <Link
                 key={child.href}

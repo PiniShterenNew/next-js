@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, Save, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface CustomerFormProps {
   customer?: Customer
@@ -26,9 +27,11 @@ export function CustomerForm({
   onSubmit, 
   onCancel, 
   isLoading = false,
-  title = customer ? 'Edit Customer' : 'Add New Customer'
+  title,
 }: CustomerFormProps) {
-  const { user } = useUser()
+  const { user } = useUser();
+
+  const { t } = useTranslation();
   
   const {
     register,
@@ -65,7 +68,7 @@ export function CustomerForm({
       if (user?.emailAddresses[0]?.emailAddress.toLowerCase() === data.email.toLowerCase()) {
         setError('email', {
           type: 'manual',
-          message: 'Cannot use your own email address for a customer'
+          message: t("customer.newEdit.emailErrorExist")
         })
         return
       }
@@ -93,19 +96,19 @@ export function CustomerForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{customer ? t("customer.newEdit.titleEdit") : t("customer.newEdit.titleNew")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="gap-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-6">
           {/* Name */}
           <div className="form-group">
             <Label htmlFor="name" className="form-label">
-              Customer Name *
+              {t("customer.newEdit.name")} *
             </Label>
             <Input
               id="name"
               {...register('name')}
-              placeholder="Enter customer name"
+              placeholder={t("customer.newEdit.namePlaceholder")}
               className={errors.name ? 'border-destructive' : ''}
               disabled={isLoading || isSubmitting}
             />
@@ -117,7 +120,7 @@ export function CustomerForm({
           {/* Email */}
           <div className="form-group">
             <Label htmlFor="email" className="form-label">
-              Email Address *
+              {t("customer.newEdit.email")} *
             </Label>
             <Input
               id="email"
@@ -135,7 +138,7 @@ export function CustomerForm({
           {/* Phone */}
           <div className="form-group">
             <Label htmlFor="phone" className="form-label">
-              Phone Number
+              {t("customer.newEdit.phone")}
             </Label>
             <Input
               id="phone"
@@ -152,7 +155,7 @@ export function CustomerForm({
           {/* Tax ID */}
           <div className="form-group">
             <Label htmlFor="taxId" className="form-label">
-              Tax ID / Business Number
+              {t("customer.newEdit.taxId")}
             </Label>
             <Input
               id="taxId"
@@ -165,19 +168,19 @@ export function CustomerForm({
               <p className="form-error">{errors.taxId.message}</p>
             )}
             <p className="text-xs text-muted-foreground mt-1">
-              Enter 8-9 digit business registration number
+              {t("customer.newEdit.taxIdHelp")}
             </p>
           </div>
 
           {/* Address */}
           <div className="form-group">
             <Label htmlFor="address" className="form-label">
-              Address
+              {t("customer.newEdit.address")}
             </Label>
             <Textarea
               id="address"
               {...register('address')}
-              placeholder="Enter customer address"
+              placeholder={t("customer.newEdit.addressPlaceholder")}
               rows={3}
               className={errors.address ? 'border-destructive' : ''}
               disabled={isLoading || isSubmitting}
@@ -197,7 +200,7 @@ export function CustomerForm({
                 disabled={isLoading || isSubmitting}
               >
                 <X className="w-4 h-4 mr-2" />
-                Cancel
+                {t("customer.newEdit.cancel")}
               </Button>
             )}
             <Button
@@ -208,12 +211,12 @@ export function CustomerForm({
               {(isLoading || isSubmitting) ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {customer ? 'Updating...' : 'Creating...'}
+                  {customer ? t("customer.newEdit.updating") : t("customer.newEdit.creating")}
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  {customer ? 'Update Customer' : 'Create Customer'}
+                  {customer ? t("customer.newEdit.save") : t("customer.newEdit.newSave")}
                 </>
               )}
             </Button>

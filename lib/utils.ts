@@ -1,6 +1,15 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format, parseISO } from 'date-fns'
+import {
+  CheckCircle,
+  Send,
+  Clock,
+  AlertTriangle,
+  FileText,
+  X,
+  HelpCircle
+} from 'lucide-react';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -20,39 +29,108 @@ export function formatCurrency(amount: number, currency: string = 'ILS'): string
 }
 
 // Invoice status utilities
-export function getInvoiceStatusColor(status: string): string {
-  switch (status.toLowerCase()) {
-    case 'paid':
-      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-    case 'sent':
-    case 'pending':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
-    case 'overdue':
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
-    case 'draft':
-      return '!bg-gray-500 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
-    case 'cancelled':
-      return '!bg-gray-500 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
-    default:
-      return '!bg-gray-500 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
-  }
+// Invoice status utilities - FIXED VERSION
+interface StatusConfig {
+  color: string;
+  icon: typeof CheckCircle;
+  translationKey: string;
 }
 
-export function getInvoiceStatusText(status: string): string {
-  switch (status.toLowerCase()) {
-    case 'draft':
-      return 'Draft'
-    case 'sent':
-      return 'Sent'
-    case 'paid':
-      return 'Paid'
-    case 'overdue':
-      return 'Overdue'
-    case 'cancelled':
-      return 'Cancelled'
-    default:
-      return status
+export const INVOICE_STATUS_CONFIG: Record<string, StatusConfig> = {
+  // Match your enum values exactly
+  PAID: {
+    color: 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
+    icon: CheckCircle,
+    translationKey: 'invoices.status.paid'
+  },
+
+  SENT: {
+    color: 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
+    icon: Send,
+    translationKey: 'invoices.status.sent'
+  },
+
+  PENDING: {
+    color: 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
+    icon: Clock,
+    translationKey: 'invoices.status.pending'
+  },
+
+  OVERDUE: {
+    color: 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 dark:bg-red-900 dark:text-red-200 dark:border-red-700',
+    icon: AlertTriangle,
+    translationKey: 'invoices.status.overdue'
+  },
+
+  DRAFT: {
+    color: 'bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
+    icon: FileText,
+    translationKey: 'invoices.status.draft'
+  },
+
+  CANCELLED: {
+    color: 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600',
+    icon: X,
+    translationKey: 'invoices.status.cancelled'
+  },
+
+  // Keep lowercase versions for backward compatibility
+  paid: {
+    color: 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
+    icon: CheckCircle,
+    translationKey: 'invoices.status.paid'
+  },
+
+  sent: {
+    color: 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
+    icon: Send,
+    translationKey: 'invoices.status.sent'
+  },
+
+  pending: {
+    color: 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
+    icon: Clock,
+    translationKey: 'invoices.status.pending'
+  },
+
+  overdue: {
+    color: 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 dark:bg-red-900 dark:text-red-200 dark:border-red-700',
+    icon: AlertTriangle,
+    translationKey: 'invoices.status.overdue'
+  },
+
+  draft: {
+    color: 'bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
+    icon: FileText,
+    translationKey: 'invoices.status.draft'
+  },
+
+  cancelled: {
+    color: 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600',
+    icon: X,
+    translationKey: 'invoices.status.cancelled'
+  },
+
+  // Default fallback
+  default: {
+    color: 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600',
+    icon: HelpCircle,
+    translationKey: 'invoices.status.unknown'
   }
+};
+
+// === Helper Function ===
+export function getStatusConfig(status: string): StatusConfig {
+  return INVOICE_STATUS_CONFIG[status] || INVOICE_STATUS_CONFIG.default;
+}
+
+// === Legacy Functions (for backward compatibility) ===
+export function getInvoiceStatusColor(status: string): string {
+  return getStatusConfig(status).color;
+}
+
+export function getInvoiceStatusTranslationKey(status: string): string {
+  return getStatusConfig(status).translationKey;
 }
 
 // Form validation utilities
@@ -74,8 +152,8 @@ export function parseNumber(value: string): number {
 }
 
 export function calculateInvoiceTotal(
-  subtotal: number, 
-  taxRate: number = 0, 
+  subtotal: number,
+  taxRate: number = 0,
   discount: number = 0
 ): {
   subtotal: number

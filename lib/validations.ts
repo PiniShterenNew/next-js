@@ -57,12 +57,38 @@ export const invoiceItemSchema = z.object({
     .max(999999, 'Unit price is too large')
 })
 
+// ✅ Schema לחשבונית חדשה (עם בדיקת תאריך עתידי)
 export const invoiceSchema = z.object({
   customerId: z.string()
     .min(1, 'Please select a customer'),
   
   dueDate: z.date()
-    .min(new Date(), 'Due date cannot be in the past'),
+    .min(new Date(), 'Due date cannot be in the past'), // בדיקה לחשבוניות חדשות
+  
+  notes: z.string()
+    .optional()
+    .refine((notes) => {
+      if (!notes) return true
+      return notes.trim().length <= 1000
+    }, 'Notes must be less than 1000 characters'),
+  
+  discount: z.number()
+    .min(0, 'Discount cannot be negative')
+    .max(999999, 'Discount is too large')
+    .optional()
+    .default(0),
+  
+  items: z.array(invoiceItemSchema)
+    .min(1, 'At least one item is required')
+    .max(50, 'Maximum 50 items per invoice')
+})
+
+// ✅ Schema נפרד לעדכון חשבונית (ללא בדיקת תאריך עתידי)
+export const updateInvoiceSchema = z.object({
+  customerId: z.string()
+    .min(1, 'Please select a customer'),
+  
+  dueDate: z.date(), // ללא בדיקת עבר/עתיד בעריכה
   
   notes: z.string()
     .optional()
@@ -83,6 +109,7 @@ export const invoiceSchema = z.object({
 })
 
 export type InvoiceFormSchema = z.infer<typeof invoiceSchema>
+export type UpdateInvoiceFormSchema = z.infer<typeof updateInvoiceSchema>
 export type InvoiceItemFormSchema = z.infer<typeof invoiceItemSchema>
 
 // Form validation for client-side

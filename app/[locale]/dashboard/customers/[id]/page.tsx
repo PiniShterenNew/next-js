@@ -24,10 +24,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { 
-  ArrowLeft, 
-  Edit, 
-  Trash2, 
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
   MoreHorizontal,
   Mail,
   Phone,
@@ -41,19 +41,21 @@ import {
 } from 'lucide-react'
 import { formatDate, formatCurrency, getInvoiceStatusColor, getInvoiceStatusText } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function CustomerDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { t } = useTranslation();
   const customerId = params.id as string
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  
+
   const { customer, loading, error, refetch } = useCustomer(customerId)
   const { deleteCustomer } = useCustomers()
 
   const handleDeleteCustomer = async () => {
     if (!customer) return
-    
+
     const success = await deleteCustomer(customer.id)
     if (success) {
       router.push('/customers')
@@ -77,7 +79,7 @@ export default function CustomerDetailPage() {
             <Link href="/dashboard/customers">
               <Button>
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Customers
+                {t('customer.newEdit.back')}
               </Button>
             </Link>
           </CardContent>
@@ -87,30 +89,30 @@ export default function CustomerDetailPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto gap-6">
+    <div className="max-w-6xl mx-auto flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/customers">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Customers
+              {t('customer.newEdit.back')}
             </Button>
           </Link>
           <div>
             <h1 className="text-3xl font-bold">{customer.name}</h1>
-            <p className="text-muted-foreground">Customer Details</p>
+            <p className="text-muted-foreground">{t('customer.details')}</p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Link href={`/invoices/new?customerId=${customer.id}`}>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              Create Invoice
+              {t('customer.createInvoice')}
             </Button>
           </Link>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
@@ -121,15 +123,15 @@ export default function CustomerDetailPage() {
               <DropdownMenuItem asChild>
                 <Link href={`/dashboard/customers/${customer.id}/edit`}>
                   <Edit className="w-4 h-4 mr-2" />
-                  Edit Customer
+                  {t('customer.edit')}
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => setShowDeleteDialog(true)}
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete Customer
+                {t('customer.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -138,56 +140,56 @@ export default function CustomerDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Customer Information */}
-        <div className="lg:col-span-1 gap-6">
+        <div className="flex flex-col lg:col-span-1 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
+              <CardTitle>{t('customer.contactInformation')}</CardTitle>
             </CardHeader>
-            <CardContent className="gap-4">
+            <CardContent className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Email</p>
+                  <p className="text-sm font-medium">{t('customer.email')}</p>
                   <p className="text-sm text-muted-foreground">{customer.email}</p>
                 </div>
               </div>
-              
+
               {customer.phone && (
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Phone</p>
+                    <p className="text-sm font-medium">{t('customer.phone')}</p>
                     <p className="text-sm text-muted-foreground">{customer.phone}</p>
                   </div>
                 </div>
               )}
-              
+
               {customer.address && (
                 <div className="flex items-center gap-3">
                   <MapPin className="w-4 h-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Address</p>
+                    <p className="text-sm font-medium">{t('customer.address')}</p>
                     <p className="text-sm text-muted-foreground">{customer.address}</p>
                   </div>
                 </div>
               )}
-              
+
               {customer.taxId && (
                 <div className="flex items-center gap-3">
                   <Building className="w-4 h-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Tax ID</p>
+                    <p className="text-sm font-medium">{t('customer.taxId')}</p>
                     <p className="text-sm text-muted-foreground">{customer.taxId}</p>
                   </div>
                 </div>
               )}
-              
+
               <Separator />
-              
+
               <div className="flex items-center gap-3">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Customer Since</p>
+                  <p className="text-sm font-medium">{t('customer.customerSince')}</p>
                   <p className="text-sm text-muted-foreground">
                     {formatDate(customer.createdAt, 'MMMM dd, yyyy')}
                   </p>
@@ -199,12 +201,12 @@ export default function CustomerDetailPage() {
           {/* Quick Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>Quick Stats</CardTitle>
+              <CardTitle>{t('customer.quickStats')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="gap-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Total Invoices</span>
+                  <span className="text-sm text-muted-foreground">{t('customer.totalInvoices')}</span>
                   <span className="font-medium">
                     {(customer as any)._count?.invoices || 0}
                   </span>
@@ -220,11 +222,11 @@ export default function CustomerDetailPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Recent Invoices</CardTitle>
+                <CardTitle>{t('customer.recentInvoices')}</CardTitle>
                 <Link href={`/invoices?customerId=${customer.id}`}>
                   <Button variant="outline" size="sm">
                     <Eye className="w-4 h-4 mr-2" />
-                    View All
+                    {t('customer.viewAll')}
                   </Button>
                 </Link>
               </div>
@@ -233,8 +235,8 @@ export default function CustomerDetailPage() {
               {(customer as any).invoices?.length > 0 ? (
                 <div className="gap-4">
                   {(customer as any).invoices.map((invoice: any) => (
-                    <div 
-                      key={invoice.id} 
+                    <div
+                      key={invoice.id}
                       className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
                     >
                       <div className="flex-1">
@@ -243,7 +245,7 @@ export default function CustomerDetailPage() {
                           <div>
                             <p className="font-medium">{invoice.invoiceNumber}</p>
                             <p className="text-sm text-muted-foreground">
-                              {formatDate(invoice.issueDate)} • Due {formatDate(invoice.dueDate)}
+                              {formatDate(invoice.issueDate)} • {t('customer.due')} {formatDate(invoice.dueDate)}
                             </p>
                           </div>
                         </div>
@@ -260,14 +262,14 @@ export default function CustomerDetailPage() {
               ) : (
                 <div className="text-center py-12">
                   <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="text-lg font-semibold mb-2">No invoices yet</h3>
+                  <h3 className="text-lg font-semibold mb-2">{t('customer.noInvoices')}</h3>
                   <p className="text-muted-foreground mb-6">
-                    Create your first invoice for {customer.name}
+                    {t('customer.createFirstInvoice', { customerName: customer.name })}
                   </p>
-                  <Link href={`/invoices/new?customerId=${customer.id}`}>
+                  <Link href={`/dashboard/invoices/new?customerId=${customer.id}`}>
                     <Button>
                       <Plus className="w-4 h-4 mr-2" />
-                      Create First Invoice
+                      {t('customer.createFirstInvoiceLink')}
                     </Button>
                   </Link>
                 </div>
@@ -286,7 +288,7 @@ export default function CustomerDetailPage() {
               Are you sure you want to delete {customer.name}? This action cannot be undone.
               {(customer as any)._count?.invoices > 0 && (
                 <span className="block mt-2 text-destructive">
-                  Warning: This customer has {(customer as any)._count.invoices} invoice(s). 
+                  Warning: This customer has {(customer as any)._count.invoices} invoice(s).
                   You cannot delete a customer with existing invoices.
                 </span>
               )}
@@ -310,7 +312,7 @@ export default function CustomerDetailPage() {
 
 function CustomerDetailSkeleton() {
   return (
-    <div className="max-w-6xl mx-auto gap-6">
+    <div className="max-w-6xl mx-auto flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -328,12 +330,12 @@ function CustomerDetailSkeleton() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Customer Info Skeleton */}
-        <div className="lg:col-span-1 gap-6">
+        <div className="flex flex-col lg:col-span-1 gap-6">
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-40" />
             </CardHeader>
-            <CardContent className="gap-4">
+            <CardContent className="flex flex-col gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <Skeleton className="h-4 w-4" />
@@ -348,7 +350,7 @@ function CustomerDetailSkeleton() {
         </div>
 
         {/* Invoices Skeleton */}
-        <div className="lg:col-span-2">
+        <div className="flex flex-col lg:col-span-2">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -357,7 +359,7 @@ function CustomerDetailSkeleton() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="gap-4">
+              <div className="flex flex-col gap-4">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-3">

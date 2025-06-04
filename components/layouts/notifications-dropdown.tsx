@@ -13,11 +13,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { 
-  Bell, 
-  Check, 
+import {
+  Bell,
+  Check,
   CheckCheck,
-  FileText, 
+  FileText,
   DollarSign,
   AlertTriangle,
   Calendar,
@@ -26,22 +26,22 @@ import {
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { useTranslations } from 'next-intl'
+import { useTranslation } from '@/hooks/use-translation'
 
 export function NotificationsDropdown() {
   const [isOpen, setIsOpen] = useState(false)
-  const { 
-    notifications, 
-    unreadCount, 
-    loading, 
-    markAsRead, 
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    markAsRead,
     markAllAsRead,
-    deleteNotification 
+    deleteNotification
   } = useNotifications({
     limit: 10,
     polling: true
   })
-  const t = useTranslations('notifications')
+  const { t } = useTranslation()
 
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
@@ -64,7 +64,7 @@ export function NotificationsDropdown() {
     if (!notification.read) {
       await markAsRead(notification.id)
     }
-    
+
     if (notification.actionUrl) {
       setIsOpen(false)
       // Navigation will happen via Link component
@@ -87,8 +87,8 @@ export function NotificationsDropdown() {
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="w-4 h-4" />
           {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs p-0 min-w-0"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
@@ -96,21 +96,21 @@ export function NotificationsDropdown() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      
+
       <DropdownMenuContent align="end" className="w-80">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center justify-between">
-            <DropdownMenuLabel>{t('title')}</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('notifications.title')}</DropdownMenuLabel>
             {notifications.length > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handleMarkAllRead}
                 className="h-8 px-2 text-xs"
               >
                 <CheckCheck className="w-3 h-3 mr-1" />
-                {t('markAllRead')}
+                {t('notifications.markAllRead')}
               </Button>
             )}
           </div>
@@ -150,7 +150,7 @@ export function NotificationsDropdown() {
             <Link href="/dashboard/notifications" onClick={() => setIsOpen(false)}>
               <Button variant="ghost" size="sm" className="w-full justify-center">
                 <Eye className="w-4 h-4 mr-2" />
-                {t('viewAll')}
+                {t('notifications.viewAll')}
               </Button>
             </Link>
           </div>
@@ -167,11 +167,11 @@ interface NotificationItemProps {
   onClick: () => void
 }
 
-function NotificationItem({ 
-  notification, 
-  onMarkAsRead, 
-  onDelete, 
-  onClick 
+function NotificationItem({
+  notification,
+  onMarkAsRead,
+  onDelete,
+  onClick
 }: NotificationItemProps) {
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
@@ -212,7 +212,7 @@ function NotificationItem({
           )}>
             {notification.title}
           </p>
-          
+
           {/* Actions */}
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             {!notification.read && (
@@ -239,11 +239,11 @@ function NotificationItem({
             </Button>
           </div>
         </div>
-        
+
         <p className="text-xs text-muted-foreground line-clamp-2">
           {notification.message}
         </p>
-        
+
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
             {formatDate(notification.createdAt, 'MMM dd, HH:mm')}

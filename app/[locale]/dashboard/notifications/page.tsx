@@ -23,11 +23,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { 
-  Bell, 
-  Check, 
+import {
+  Bell,
+  Check,
   CheckCheck,
-  FileText, 
+  FileText,
   DollarSign,
   AlertTriangle,
   Calendar,
@@ -39,22 +39,25 @@ import {
 import { formatDate, cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function NotificationsPage() {
+
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [page, setPage] = useState(1)
   const [selectedNotification, setSelectedNotification] = useState<string | null>(null)
-  
-  const { 
-    notifications, 
+
+  const {
+    notifications,
     unreadCount,
-    loading, 
+    loading,
     error,
     pagination,
-    markAsRead, 
+    markAsRead,
     markAllAsRead,
     deleteNotification,
-    refreshNotifications 
+    refreshNotifications
   } = useNotifications({
     page,
     limit: 20,
@@ -109,20 +112,20 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="gap-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Notifications</h1>
+          <h1 className="text-3xl font-bold">{t("notifications.title")}</h1>
           <p className="text-muted-foreground">
-            Stay updated with your business activity
+            {t("notifications.description")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {unreadCount > 0 && (
             <Button variant="outline" onClick={handleMarkAllRead}>
               <CheckCheck className="w-4 h-4 mr-2" />
-              Mark All Read ({unreadCount})
+              {t('notifications.markAllRead', { unreadCount })}
             </Button>
           )}
         </div>
@@ -135,7 +138,7 @@ export default function NotificationsPage() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Filter:</span>
+                <span className="text-sm font-medium">{t("notifications.filter")}:</span>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -146,7 +149,7 @@ export default function NotificationsPage() {
                     setPage(1)
                   }}
                 >
-                  All Notifications
+                  {t("notifications.all")}
                 </Button>
                 <Button
                   variant={filter === 'unread' ? 'default' : 'outline'}
@@ -156,7 +159,7 @@ export default function NotificationsPage() {
                     setPage(1)
                   }}
                 >
-                  Unread Only
+                  {t("notifications.unread")}
                   {unreadCount > 0 && (
                     <Badge variant="secondary" className="ml-2">
                       {unreadCount}
@@ -165,9 +168,9 @@ export default function NotificationsPage() {
                 </Button>
               </div>
             </div>
-            
+
             <div className="text-sm text-muted-foreground">
-              {pagination ? `${pagination.total} notifications` : 'Loading...'}
+              {pagination ? t("notifications.count", { count: pagination.total }) : t("notifications.loading")}
             </div>
           </div>
         </CardContent>
@@ -175,13 +178,13 @@ export default function NotificationsPage() {
 
       {/* Notifications List */}
       {loading ? (
-        <div className="gap-4">
+        <div className="flex flex-col gap-4">
           {Array.from({ length: 5 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                   <Skeleton className="h-5 w-5 rounded" />
-                  <div className="flex-1 gap-2">
+                  <div className="flex flex-col flex-1 gap-2">
                     <Skeleton className="h-5 w-3/4" />
                     <Skeleton className="h-4 w-1/2" />
                     <Skeleton className="h-3 w-20" />
@@ -201,7 +204,7 @@ export default function NotificationsPage() {
                 {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
               </h3>
               <p className="text-muted-foreground">
-                {filter === 'unread' 
+                {filter === 'unread'
                   ? "You're all caught up! All notifications have been read."
                   : "We'll notify you when something important happens with your invoices."
                 }
@@ -210,7 +213,7 @@ export default function NotificationsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="gap-4">
+        <div className="flex flex-col gap-4">
           {notifications.map((notification) => (
             <NotificationCard
               key={notification.id}
@@ -248,8 +251,8 @@ export default function NotificationsPage() {
       )}
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog 
-        open={!!selectedNotification} 
+      <AlertDialog
+        open={!!selectedNotification}
         onOpenChange={() => setSelectedNotification(null)}
       >
         <AlertDialogContent>
@@ -282,12 +285,12 @@ interface NotificationCardProps {
   getIcon: (type: NotificationType) => React.ReactNode
 }
 
-function NotificationCard({ 
-  notification, 
-  onMarkAsRead, 
-  onDelete, 
+function NotificationCard({
+  notification,
+  onMarkAsRead,
+  onDelete,
   onClick,
-  getIcon 
+  getIcon
 }: NotificationCardProps) {
   const content = (
     <Card className={cn(
@@ -327,8 +330,8 @@ function NotificationCard({
               {/* Actions */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="icon"
                     className="h-8 w-8 opacity-50 hover:opacity-100"
                     onClick={(e) => e.stopPropagation()}
@@ -338,7 +341,7 @@ function NotificationCard({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   {!notification.read && (
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation()
                         onMarkAsRead()
@@ -348,7 +351,7 @@ function NotificationCard({
                       Mark as Read
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation()
                       onDelete()

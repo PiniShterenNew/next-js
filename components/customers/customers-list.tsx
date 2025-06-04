@@ -94,9 +94,9 @@ export function CustomersList() {
   }
 
   return (
-    <div className="gap-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
@@ -143,7 +143,7 @@ export function CustomersList() {
                 <Skeleton className="h-4 w-48" />
               </CardHeader>
               <CardContent>
-                <div className="gap-3">
+                <div className="flex flex-col gap-3">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-4 w-32" />
                   <Skeleton className="h-8 w-full" />
@@ -275,7 +275,7 @@ function CustomerCard({ customer, onDelete }: CustomerCardProps) {
       </CardHeader>
       
       <CardContent className="pt-0">
-        <div className="gap-2">
+        <div className="flex flex-col gap-2">
           {customer.phone && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Phone className="w-3 h-3" />

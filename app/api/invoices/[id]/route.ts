@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { invoiceSchema } from '@/lib/validations'
+import { invoiceSchema, updateInvoiceSchema } from '@/lib/validations' // ✅ import שני schemas
 import { ApiResponse, Invoice, InvoiceStatus } from '@/types'
 import { calculateInvoiceTotal } from '@/lib/utils'
 
@@ -37,9 +37,10 @@ export async function GET(
       )
     }
 
+    const resolvedParams = await params
     const invoice = await db.invoice.findFirst({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: user.id, // וידוא שהחשבונית שייכת למשתמש
       },
       include: {
@@ -102,12 +103,22 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const validatedData = invoiceSchema.parse(body)
+    
+    // ✅ המרת התאריך מ-string ל-Date לפני הvalidation
+    const processedData = {
+      ...body,
+      dueDate: body.dueDate ? new Date(body.dueDate) : undefined
+    }
+
+    // ✅ שימוש ב-updateInvoiceSchema במקום invoiceSchema
+    const validatedData = updateInvoiceSchema.parse(processedData)
+
+    const resolvedParams = await params
 
     // בדיקה שהחשבונית קיימת ושייכת למשתמש
     const existingInvoice = await db.invoice.findFirst({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: user.id,
       },
       include: { items: true }
@@ -161,12 +172,12 @@ export async function PUT(
     const updatedInvoice = await db.$transaction(async (tx) => {
       // מחיקת פריטים קיימים
       await tx.invoiceItem.deleteMany({
-        where: { invoiceId: params.id }
+        where: { invoiceId: resolvedParams.id }
       })
 
       // עדכון החשבונית עם פריטים חדשים
       const invoice = await tx.invoice.update({
-        where: { id: params.id },
+        where: { id: resolvedParams.id },
         data: {
           customerId: validatedData.customerId,
           dueDate: validatedData.dueDate,
@@ -208,12 +219,18 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating invoice:', error)
     
-    if (error instanceof Error && error.name === 'ZodError') {
+    // טיפול משופר בשגיאות Zod
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+      const zodError = error as any
       return NextResponse.json(
         { 
           success: false, 
           error: 'Invalid data provided',
-          details: error 
+          details: zodError.issues?.map((issue: any) => ({
+            field: issue.path?.join('.'),
+            message: issue.message,
+            code: issue.code
+          }))
         } as ApiResponse,
         { status: 400 }
       )
@@ -252,10 +269,12 @@ export async function DELETE(
       )
     }
 
+    const resolvedParams = await params
+
     // בדיקה שהחשבונית קיימת ושייכת למשתמש
     const invoice = await db.invoice.findFirst({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: user.id,
       }
     })
@@ -280,7 +299,7 @@ export async function DELETE(
 
     // מחיקת החשבונית (הפריטים יימחקו אוטומטית בגלל CASCADE)
     await db.invoice.delete({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     return NextResponse.json({
