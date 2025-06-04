@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { customerSchema } from '@/lib/validations'
 import { ApiResponse, Customer } from '@/types'
+import { NotificationService } from '@/lib/notification-service'
 
 interface RouteParams {
   params: {
@@ -169,6 +170,16 @@ export async function PUT(
       }
     })
 
+    // יצירת התראה על עדכון לקוח
+    try {
+      await NotificationService.notifyCustomerUpdated({
+        ...updatedCustomer,
+        userId: user.id
+      })
+    } catch (error) {
+      console.error('Failed to create customer update notification:', error)
+    }
+
     return NextResponse.json({
       success: true,
       data: updatedCustomer,
@@ -257,6 +268,16 @@ request: NextRequest, context: { params: { id: string } }
     await db.customer.delete({
       where: { id: id }
     })
+
+    // יצירת התראה על מחיקת לקוח
+    try {
+      await NotificationService.notifyCustomerDeleted({
+        ...customer,
+        userId: user.id
+      })
+    } catch (error) {
+      console.error('Failed to create customer delete notification:', error)
+    }
 
     return NextResponse.json({
       success: true,
