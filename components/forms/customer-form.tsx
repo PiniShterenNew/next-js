@@ -1,7 +1,5 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { customerFormSchema, CustomerFormSchema } from '@/lib/validations'
 import { Customer, CreateCustomerData, UpdateCustomerData } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -13,6 +11,7 @@ import { Loader2, Save, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useTranslation } from '@/hooks/use-translation'
+import { useTranslatedForm } from '@/hooks/use-translated-form'
 
 interface CustomerFormProps {
   customer?: Customer
@@ -40,8 +39,7 @@ export function CustomerForm({
     reset,
     setValue,
     setError,
-  } = useForm<CustomerFormSchema>({
-    resolver: zodResolver(customerFormSchema),
+  } = useTranslatedForm(customerFormSchema, {
     defaultValues: {
       name: '',
       email: '',

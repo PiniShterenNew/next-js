@@ -225,11 +225,25 @@ export interface Notification {
 }
 
 export enum NotificationType {
+  // Invoice related
   INVOICE_CREATED = 'INVOICE_CREATED',
+  INVOICE_UPDATED = 'INVOICE_UPDATED',
+  INVOICE_DELETED = 'INVOICE_DELETED',
   INVOICE_OVERDUE = 'INVOICE_OVERDUE', 
   INVOICE_PAID = 'INVOICE_PAID',
   PAYMENT_RECEIVED = 'PAYMENT_RECEIVED',
-  REMINDER = 'REMINDER'
+  
+  // Customer related
+  CUSTOMER_CREATED = 'CUSTOMER_CREATED',
+  CUSTOMER_UPDATED = 'CUSTOMER_UPDATED',
+  CUSTOMER_DELETED = 'CUSTOMER_DELETED',
+  
+  // Settings related
+  SETTINGS_UPDATED = 'SETTINGS_UPDATED',
+  
+  // System notifications
+  REMINDER = 'REMINDER',
+  SYSTEM_ALERT = 'SYSTEM_ALERT'
 }
 
 export interface CreateNotificationData {

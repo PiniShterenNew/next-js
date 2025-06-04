@@ -3,10 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  FileText, 
-  Users, 
-  DollarSign, 
+import {
+  FileText,
+  Users,
+  DollarSign,
   Clock,
   TrendingUp,
   Plus,
@@ -14,31 +14,32 @@ import {
   Settings
 } from 'lucide-react'
 import Link from 'next/link'
-import { formatCurrency, getInvoiceStatusColor, getInvoiceStatusText } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import { useEnhancedInvoiceStats as useInvoiceStats, useEnhancedInvoices as useInvoices } from '@/hooks/use-enhanced-invoices'
 import { useCustomers } from '@/hooks/use-customers'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTranslations } from 'next-intl'
+import { InvoiceStatusBadge } from '../invoices/Invoice-status-badge'
 
 export function DashboardContent() {
   const t = useTranslations('dashboard')
-  const { 
-    totalInvoices, 
-    paidInvoices, 
-    pendingInvoices, 
-    overdueInvoices, 
-    totalRevenue, 
-    loading: statsLoading 
+  const {
+    totalInvoices,
+    paidInvoices,
+    pendingInvoices,
+    overdueInvoices,
+    totalRevenue,
+    loading: statsLoading
   } = useInvoiceStats()
-  
-  const { invoices: recentInvoices, loading: invoicesLoading } = useInvoices({ 
-    page: 1, 
-    limit: 5 
+
+  const { invoices: recentInvoices, loading: invoicesLoading } = useInvoices({
+    page: 1,
+    limit: 5
   })
-  
-  const { pagination: customersPagination, loading: customersLoading } = useCustomers({ 
-    page: 1, 
-    limit: 1 
+
+  const { pagination: customersPagination, loading: customersLoading } = useCustomers({
+    page: 1,
+    limit: 1
   })
 
   return (
@@ -123,8 +124,8 @@ export function DashboardContent() {
               <>
                 <div className="text-2xl font-bold">{overdueInvoices}</div>
                 <p className="text-xs text-muted-foreground">
-                  {overdueInvoices > 0 
-                    ? t('stats.needsAttention') 
+                  {overdueInvoices > 0
+                    ? t('stats.needsAttention')
                     : t('stats.allUpToDate')}
                 </p>
               </>
@@ -147,8 +148,8 @@ export function DashboardContent() {
               <>
                 <div className="text-2xl font-bold">{customersPagination?.total || 0}</div>
                 <p className="text-xs text-muted-foreground">
-                  {(customersPagination?.total || 0) > 0 
-                    ? t('stats.activeCustomers', { count: customersPagination?.total || 0 }) 
+                  {(customersPagination?.total || 0) > 0
+                    ? t('stats.activeCustomers', { count: customersPagination?.total || 0 })
                     : t('stats.noCustomersYet')}
                 </p>
               </>
@@ -176,11 +177,11 @@ export function DashboardContent() {
               <div className="flex flex-col gap-4">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="gap-2">
+                    <div className="flex flex-col items-center gap-2">
                       <Skeleton className="h-4 w-24" />
                       <Skeleton className="h-3 w-32" />
                     </div>
-                    <div className="text-right gap-2">
+                    <div className="flex flex-col items-center gap-2">
                       <Skeleton className="h-4 w-16" />
                       <Skeleton className="h-5 w-12" />
                     </div>
@@ -204,9 +205,12 @@ export function DashboardContent() {
                       </div>
                       <div className="flex flex-col items-end">
                         <p className="font-medium">{formatCurrency(Number(invoice.total))}</p>
-                        <Badge variant="secondary" className={getInvoiceStatusColor(invoice.status)}>
-                          {getInvoiceStatusText(invoice.status)}
-                        </Badge>
+                        <InvoiceStatusBadge
+                          status={invoice.status}
+                          t={t}
+                          Badge={Badge}
+                          showIcon={true}
+                        />
                       </div>
                     </div>
                   ))

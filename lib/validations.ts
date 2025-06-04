@@ -1,191 +1,191 @@
+// lib/validations.ts - וולידציה מאוחדת לשרת ולקוח
+
 import { z } from 'zod'
 
-// Customer validation schemas
+// Customer validation schemas - גרסה מאוחדת לשרת ולקוח
 export const customerSchema = z.object({
   name: z.string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name must be less than 100 characters')
+    .min(2, 'validation.customer.name.min')
+    .max(100, 'validation.customer.name.max')
     .trim(),
   
   email: z.string()
-    .email('Please enter a valid email address')
-    .max(255, 'Email must be less than 255 characters')
+    .email('validation.customer.email.invalid')
+    .max(255, 'validation.customer.email.max')
     .toLowerCase()
     .trim(),
   
   phone: z.string()
     .optional()
+    .transform((val) => val === '' ? undefined : val) // המר מחרוזת ריקה ל-undefined
     .refine((phone) => {
-      if (!phone || phone.trim() === '') return true
+      if (!phone) return true // אם undefined או null - בסדר
       // Basic phone validation for Israeli numbers
       const phoneRegex = /^[\+]?[0-9\-\s\(\)]{7,15}$/
       return phoneRegex.test(phone)
-    }, 'Please enter a valid phone number'),
+    }, 'validation.customer.phone.invalid'),
   
   address: z.string()
     .optional()
+    .transform((val) => val === '' ? undefined : val) // המר מחרוזת ריקה ל-undefined
     .refine((address) => {
       if (!address) return true
       return address.trim().length <= 500
-    }, 'Address must be less than 500 characters'),
+    }, 'validation.customer.address.max'),
   
   taxId: z.string()
     .optional()
+    .transform((val) => val === '' ? undefined : val) // המר מחרוזת ריקה ל-undefined
     .refine((taxId) => {
-      if (!taxId || taxId.trim() === '') return true
+      if (!taxId) return true // אם undefined או null - בסדר
       // Israeli business number validation (basic)
       const cleanTaxId = taxId.replace(/\D/g, '')
       return cleanTaxId.length >= 8 && cleanTaxId.length <= 9
-    }, 'Please enter a valid tax ID (8-9 digits)')
+    }, 'validation.customer.taxId.invalid')
 })
 
 export type CustomerFormSchema = z.infer<typeof customerSchema>
 
+// 👇 עכשיו customerFormSchema זהה ל-customerSchema - אותה וולידציה בדיוק!
+export const customerFormSchema = customerSchema
+
 // Invoice validation schemas
 export const invoiceItemSchema = z.object({
   description: z.string()
-    .min(1, 'Description is required')
-    .max(500, 'Description must be less than 500 characters')
+    .min(1, 'validation.invoiceItem.description.required')
+    .max(500, 'validation.invoiceItem.description.max')
     .trim(),
   
   quantity: z.number()
-    .min(0.01, 'Quantity must be greater than 0')
-    .max(999999, 'Quantity is too large'),
+    .min(0.01, 'validation.invoiceItem.quantity.min')
+    .max(999999, 'validation.invoiceItem.quantity.max'),
   
   unitPrice: z.number()
-    .min(0, 'Unit price cannot be negative')
-    .max(999999, 'Unit price is too large')
+    .min(0, 'validation.invoiceItem.unitPrice.negative')
+    .max(999999, 'validation.invoiceItem.unitPrice.max')
 })
 
 // ✅ Schema לחשבונית חדשה (עם בדיקת תאריך עתידי)
 export const invoiceSchema = z.object({
   customerId: z.string()
-    .min(1, 'Please select a customer'),
+    .min(1, 'validation.invoice.customerId.required'),
   
   dueDate: z.date()
-    .min(new Date(), 'Due date cannot be in the past'), // בדיקה לחשבוניות חדשות
+    .min(new Date(), 'validation.invoice.dueDate.pastDate'),
   
   notes: z.string()
     .optional()
+    .transform((val) => val === '' ? undefined : val) // תיקון גם כאן
     .refine((notes) => {
       if (!notes) return true
       return notes.trim().length <= 1000
-    }, 'Notes must be less than 1000 characters'),
+    }, 'validation.invoice.notes.max'),
   
   discount: z.number()
-    .min(0, 'Discount cannot be negative')
-    .max(999999, 'Discount is too large')
+    .min(0, 'validation.invoice.discount.negative')
+    .max(999999, 'validation.invoice.discount.tooLarge')
     .optional()
     .default(0),
   
   items: z.array(invoiceItemSchema)
-    .min(1, 'At least one item is required')
-    .max(50, 'Maximum 50 items per invoice')
+    .min(1, 'validation.invoice.items.min')
+    .max(50, 'validation.invoice.items.max')
 })
 
 // ✅ Schema נפרד לעדכון חשבונית (ללא בדיקת תאריך עתידי)
 export const updateInvoiceSchema = z.object({
   customerId: z.string()
-    .min(1, 'Please select a customer'),
+    .min(1, 'validation.invoice.customerId.required'),
   
-  dueDate: z.date(), // ללא בדיקת עבר/עתיד בעריכה
+  dueDate: z.date(),
   
   notes: z.string()
     .optional()
+    .transform((val) => val === '' ? undefined : val) // תיקון גם כאן
     .refine((notes) => {
       if (!notes) return true
       return notes.trim().length <= 1000
-    }, 'Notes must be less than 1000 characters'),
+    }, 'validation.invoice.notes.max'),
   
   discount: z.number()
-    .min(0, 'Discount cannot be negative')
-    .max(999999, 'Discount is too large')
+    .min(0, 'validation.invoice.discount.negative')
+    .max(999999, 'validation.invoice.discount.tooLarge')
     .optional()
     .default(0),
   
   items: z.array(invoiceItemSchema)
-    .min(1, 'At least one item is required')
-    .max(50, 'Maximum 50 items per invoice')
+    .min(1, 'validation.invoice.items.min')
+    .max(50, 'validation.invoice.items.max')
 })
 
 export type InvoiceFormSchema = z.infer<typeof invoiceSchema>
 export type UpdateInvoiceFormSchema = z.infer<typeof updateInvoiceSchema>
 export type InvoiceItemFormSchema = z.infer<typeof invoiceItemSchema>
 
-// Form validation for client-side
-export const customerFormSchema = z.object({
-  name: z.string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name must be less than 100 characters'),
-  
-  email: z.string()
-    .email('Please enter a valid email address')
-    .max(255, 'Email must be less than 255 characters'),
-  
-  phone: z.string()
-    .optional(),
-  
-  address: z.string()
-    .optional(),
-  
-  taxId: z.string()
-    .optional()
-})
-
+// Invoice form schema לטפסים (עם string inputs)
 export const invoiceFormSchema = z.object({
   customerId: z.string()
-    .min(1, 'Please select a customer'),
+    .min(1, 'validation.invoice.customerId.required'),
   
   dueDate: z.string()
-    .min(1, 'Please select a due date'),
+    .min(1, 'validation.invoice.dueDate.required'),
   
   notes: z.string()
-    .optional(),
+    .optional()
+    .transform((val) => val === '' ? undefined : val), // תיקון גם כאן
   
   discount: z.string()
     .optional()
-    .default('0'),
+    .default('0')
+    .transform((val) => val === '' ? '0' : val), // תיקון - מחרוזת ריקה הופכת ל-"0"
   
   items: z.array(z.object({
     description: z.string()
-      .min(1, 'Description is required'),
+      .min(1, 'validation.invoiceItem.description.required')
+      .transform((val) => val.trim()), // נקה רווחים
     quantity: z.string()
-      .min(1, 'Quantity is required'),
+      .min(1, 'validation.invoiceItem.quantity.required'),
     unitPrice: z.string()
-      .min(1, 'Unit price is required')
+      .min(1, 'validation.invoiceItem.unitPrice.required')
   }))
-  .min(1, 'At least one item is required')
+  .min(1, 'validation.invoice.items.min')
 })
 
 // Settings validation schema
 export const userSettingsSchema = z.object({
   businessName: z.string()
-    .optional(),
+    .optional()
+    .transform((val) => val === '' ? undefined : val), // תיקון גם כאן
   
   businessAddress: z.string()
-    .optional(),
+    .optional()
+    .transform((val) => val === '' ? undefined : val), // תיקון גם כאן
   
   businessPhone: z.string()
-    .optional(),
+    .optional()
+    .transform((val) => val === '' ? undefined : val), // תיקון גם כאן
   
   businessEmail: z.string()
-    .email('Please enter a valid email address')
     .optional()
-    .or(z.literal('')),
+    .transform((val) => val === '' ? undefined : val) // תיקון גם כאן
+    .refine((email) => {
+      if (!email) return true
+      return z.string().email().safeParse(email).success
+    }, 'validation.settings.businessEmail.invalid'),
   
   taxRate: z.number()
-    .min(0, 'Tax rate cannot be negative')
-    .max(100, 'Tax rate cannot exceed 100%')
+    .min(0, 'validation.settings.taxRate.negative')
+    .max(100, 'validation.settings.taxRate.max')
     .default(17),
   
   currency: z.string()
-    .min(3, 'Currency code must be 3 characters')
-    .max(3, 'Currency code must be 3 characters')
+    .min(3, 'validation.settings.currency.length')
+    .max(3, 'validation.settings.currency.length')
     .default('ILS'),
   
   invoicePrefix: z.string()
-    .min(1, 'Invoice prefix is required')
-    .max(10, 'Invoice prefix must be less than 10 characters')
+    .min(1, 'validation.settings.invoicePrefix.required')
+    .max(10, 'validation.settings.invoicePrefix.max')
     .default('INV'),
 })
 

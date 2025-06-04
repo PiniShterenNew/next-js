@@ -100,20 +100,18 @@ export function NotificationsDropdown() {
       <DropdownMenuContent align="end" className="w-80">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center justify-between">
-            <DropdownMenuLabel>{t('notifications.title')}</DropdownMenuLabel>
-            {notifications.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleMarkAllRead}
-                className="h-8 px-2 text-xs"
-              >
-                <CheckCheck className="w-3 h-3 mr-1" />
-                {t('notifications.markAllRead')}
-              </Button>
-            )}
-          </div>
+          <DropdownMenuLabel>{t('notifications.dropdown.title')}</DropdownMenuLabel>
+          {notifications.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleMarkAllRead}
+              className="h-8 px-2 text-xs"
+            >
+              <CheckCheck className="w-3 h-3 mr-1" />
+              {t('notifications.dropdown.markAllRead')}
+            </Button>
+          )}
         </div>
 
         {/* Content */}
@@ -121,13 +119,13 @@ export function NotificationsDropdown() {
           {loading && notifications.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">
               <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
-              {t('loading')}
+              {t('notifications.dropdown.loading')}
             </div>
           ) : notifications.length === 0 ? (
             <div className="p-4 text-center text-sm text-muted-foreground">
               <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">{t('empty')}</p>
-              <p className="text-xs mt-1">{t('noNotifications')}</p>
+              <p className="text-sm">{t('notifications.dropdown.empty.title')}</p>
+              <p className="text-xs mt-1">{t('notifications.dropdown.empty.description')}</p>
             </div>
           ) : (
             <div className="py-2">
@@ -150,7 +148,7 @@ export function NotificationsDropdown() {
             <Link href="/dashboard/notifications" onClick={() => setIsOpen(false)}>
               <Button variant="ghost" size="sm" className="w-full justify-center">
                 <Eye className="w-4 h-4 mr-2" />
-                {t('notifications.viewAll')}
+                {t('notifications.dropdown.viewAll')}
               </Button>
             </Link>
           </div>
@@ -173,6 +171,8 @@ function NotificationItem({
   onDelete,
   onClick
 }: NotificationItemProps) {
+  const { t } = useTranslation()
+  
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
       case NotificationType.INVOICE_CREATED:

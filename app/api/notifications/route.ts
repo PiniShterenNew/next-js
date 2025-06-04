@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { ApiResponse, PaginatedResponse } from '@/types'
+import { ApiResponse, PaginatedResponse, NotificationType } from '@/types'
 
 export interface Notification {
   id: string
@@ -15,14 +15,6 @@ export interface Notification {
   actionUrl?: string
   createdAt: Date
   updatedAt: Date
-}
-
-export enum NotificationType {
-  INVOICE_CREATED = 'INVOICE_CREATED',
-  INVOICE_OVERDUE = 'INVOICE_OVERDUE',
-  INVOICE_PAID = 'INVOICE_PAID',
-  PAYMENT_RECEIVED = 'PAYMENT_RECEIVED',
-  REMINDER = 'REMINDER'
 }
 
 // GET /api/notifications - קבלת כל ההתראות של המשתמש

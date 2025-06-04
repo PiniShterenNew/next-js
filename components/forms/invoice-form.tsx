@@ -1,8 +1,7 @@
 // components/forms/invoice-form.tsx - רכיב מתוקן עם טעינת נתונים נכונה
 'use client'
 
-import { useForm, useFieldArray, useWatch } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useFieldArray, useWatch } from 'react-hook-form'
 import { invoiceFormSchema } from '@/lib/validations'
 import { Invoice, CreateInvoiceData, UpdateInvoiceData } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -26,6 +25,7 @@ import { useSettings } from '@/hooks/use-settings'
 import { formatCurrency, parseNumber, calculateInvoiceTotal } from '@/lib/utils'
 import { format } from 'date-fns'
 import { useTranslation } from '@/hooks/use-translation'
+import { useTranslatedForm } from '@/hooks/use-translated-form'
 
 interface InvoiceFormData {
   customerId: string
@@ -60,7 +60,7 @@ export function InvoiceForm({
   const { settings, loading: settingsLoading } = useSettings()
   const { customers } = useCustomers({ limit: 100 })
   const { t } = useTranslation()
-  
+
   // ✅ 2. State למעקב אחר מוכנות הטופס
   const [isFormReady, setIsFormReady] = useState(false)
 
@@ -100,8 +100,7 @@ export function InvoiceForm({
     setValue,
     watch,
     control,
-  } = useForm<InvoiceFormData>({
-    resolver: zodResolver(invoiceFormSchema),
+  } = useTranslatedForm(invoiceFormSchema, {
     defaultValues: getDefaultValues(),
   })
 
@@ -200,10 +199,10 @@ export function InvoiceForm({
           <div className="flex items-center justify-center">
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             <span>
-              {settingsLoading 
-                ? t("invoice.loading") 
-                : invoice 
-                  ? 'טוען נתוני החשבונית...' 
+              {settingsLoading
+                ? t("invoice.loading")
+                : invoice
+                  ? 'טוען נתוני החשבונית...'
                   : 'מכין טופס חדש...'
               }
             </span>
@@ -229,10 +228,10 @@ export function InvoiceForm({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-6">
-            
+
             {/* ✅ Customer and Due Date Section */}
             <div className="grid gap-6 md:grid-cols-2">
-              
+
               {/* Customer Selection */}
               <div className="form-group">
                 <Label htmlFor="customerId" className="form-label">
@@ -302,7 +301,7 @@ export function InvoiceForm({
                 {fields.map((field, index) => (
                   <Card key={field.id} className="p-4">
                     <div className="grid gap-4 md:grid-cols-12 items-end">
-                      
+
                       {/* Description */}
                       <div className="md:col-span-5">
                         <Label className="text-sm">{t("invoice.itemDescription")}</Label>
@@ -393,7 +392,7 @@ export function InvoiceForm({
 
             {/* ✅ Discount and Notes Section */}
             <div className="grid gap-6 md:grid-cols-1">
-              
+
               {/* Discount */}
               <div className="form-group">
                 <Label htmlFor="discount" className="form-label">
@@ -438,7 +437,7 @@ export function InvoiceForm({
             {/* ✅ Calculations Summary */}
             <div className="bg-muted/50 p-4 rounded-lg">
               <div className="flex items-center mb-3">
-                <Calculator className="w-4 h-4 mr-2" />
+                <Calculator className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
                 <span className="font-semibold">סיכום החשבונית</span>
               </div>
               <div className="flex flex-col gap-2 text-sm">

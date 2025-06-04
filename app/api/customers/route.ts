@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { customerSchema } from '@/lib/validations'
-import { ApiResponse, Customer } from '@/types'
+import { ApiResponse, type Customer } from '@/types'
+import { NotificationService } from '@/lib/notification-service'
 
 // GET /api/customers - קבלת כל הלקוחות של המשתמש
 export async function GET(request: NextRequest) {
@@ -147,15 +148,31 @@ export async function POST(request: NextRequest) {
     // יצירת לקוח חדש
     const customer = await db.customer.create({
       data: {
-        ...validatedData,
         userId: user.id,
+        name: body.name,
+        email: body.email,
+        phone: body.phone || null,
+        address: body.address || null,
+        taxId: body.taxId || null,
       },
-      include: {
-        _count: {
-          select: { invoices: true }
-        }
-      }
     })
+
+    // שליחת התראה על יצירת לקוח חדש - בדיוק כמו בחשבוניות
+    try {
+      // המרת האובייקט לטיפוס הנכון - המרת null ל-undefined
+      const customerForNotification = {
+        ...customer,
+        userId: user.id,
+        phone: customer.phone || undefined,
+        address: customer.address || undefined,
+        taxId: customer.taxId || undefined
+      }
+      
+      await NotificationService.notifyCustomerCreated(customerForNotification)
+      console.log(`✅ Customer notification created for customer ID: ${customer.id}, user ID: ${user.id}`)
+    } catch (error) {
+      console.error('❌ Failed to create customer notification:', error)
+    }
 
     return NextResponse.json(
       { 

@@ -1,6 +1,8 @@
 // lib/notification-service.ts - תיקון
 import { db } from '@/lib/db'
-import { NotificationType } from '@/types'
+import { NotificationType, type Customer, type UserSettings } from '@/types'
+import { format } from 'date-fns'
+import { he } from 'date-fns/locale'
 
 export interface CreateNotificationData {
   userId: string
@@ -45,8 +47,8 @@ export class NotificationService {
       await this.createNotification({
         userId: invoice.userId,
         type: NotificationType.INVOICE_CREATED,
-        title: 'Invoice Created Successfully',
-        message: `Invoice ${invoice.invoiceNumber} has been created for ${invoice.customer?.name || 'customer'}`,
+        title: 'חשבונית חדשה נוצרה בהצלחה',
+        message: `חשבונית ${invoice.invoiceNumber} נוצרה עבור ${invoice.customer?.name || 'לקוח'}`,
         data: {
           invoiceId: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
@@ -61,6 +63,50 @@ export class NotificationService {
   }
 
   /**
+   * התראה על עדכון חשבונית
+   */
+  static async notifyInvoiceUpdated(invoice: any, updatedFields: string[]) {
+    try {
+      await this.createNotification({
+        userId: invoice.userId,
+        type: NotificationType.INVOICE_UPDATED,
+        title: 'חשבונית עודכנה',
+        message: `חשבונית ${invoice.invoiceNumber} עודכנה (שינויים: ${updatedFields.join(', ')})`,
+        data: {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          updatedFields,
+          updatedAt: new Date()
+        },
+        actionUrl: `/dashboard/invoices/${invoice.id}`
+      })
+    } catch (error) {
+      console.error('❌ Failed to create invoice updated notification:', error)
+    }
+  }
+
+  /**
+   * התראה על מחיקת חשבונית
+   */
+  static async notifyInvoiceDeleted(invoice: any) {
+    try {
+      await this.createNotification({
+        userId: invoice.userId,
+        type: NotificationType.INVOICE_DELETED,
+        title: 'חשבונית נמחקה',
+        message: `החשבונית ${invoice.invoiceNumber} נמחקה מהמערכת`,
+        data: {
+          invoiceNumber: invoice.invoiceNumber,
+          customerName: invoice.customer?.name,
+          deletedAt: new Date()
+        }
+      })
+    } catch (error) {
+      console.error('❌ Failed to create invoice deleted notification:', error)
+    }
+  }
+
+  /**
    * התראה על חשבונית ששולמה
    */
   static async notifyInvoicePaid(invoice: any) {
@@ -68,8 +114,8 @@ export class NotificationService {
       await this.createNotification({
         userId: invoice.userId,
         type: NotificationType.INVOICE_PAID,
-        title: 'Payment Received! 🎉',
-        message: `Invoice ${invoice.invoiceNumber} has been paid - ${new Intl.NumberFormat('he-IL', {
+        title: 'תשולם בהצלחה! 🎉',
+        message: `החשבונית ${invoice.invoiceNumber} שולמה - ${new Intl.NumberFormat('he-IL', {
           style: 'currency',
           currency: 'ILS',
         }).format(Number(invoice.total))}`,
@@ -77,7 +123,8 @@ export class NotificationService {
           invoiceId: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
           customerName: invoice.customer?.name,
-          amount: Number(invoice.total)
+          amount: Number(invoice.total),
+          paidAt: new Date()
         },
         actionUrl: `/dashboard/invoices/${invoice.id}`
       })
@@ -94,18 +141,20 @@ export class NotificationService {
       const daysPastDue = Math.floor(
         (new Date().getTime() - new Date(invoice.dueDate).getTime()) / (1000 * 3600 * 24)
       )
+      const formattedDate = format(new Date(invoice.dueDate), 'dd/MM/yyyy', { locale: he })
 
       await this.createNotification({
         userId: invoice.userId,
         type: NotificationType.INVOICE_OVERDUE,
-        title: 'Invoice Overdue ⚠️',
-        message: `Invoice ${invoice.invoiceNumber} is ${daysPastDue} days overdue`,
+        title: 'חשבונית באיחור ⚠️',
+        message: `חשבונית ${invoice.invoiceNumber} איחור של ${daysPastDue} ימים (תאריך יעד: ${formattedDate})`,
         data: {
           invoiceId: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
           customerName: invoice.customer?.name,
-          amount: Number(invoice.total),
-          daysPastDue
+          dueDate: invoice.dueDate,
+          daysPastDue,
+          amount: Number(invoice.total)
         },
         actionUrl: `/dashboard/invoices/${invoice.id}`
       })
@@ -119,11 +168,13 @@ export class NotificationService {
    */
   static async notifyInvoiceReminder(invoice: any, daysBefore: number) {
     try {
+      const formattedDate = format(new Date(invoice.dueDate), 'dd/MM/yyyy', { locale: he })
+      
       await this.createNotification({
         userId: invoice.userId,
         type: NotificationType.REMINDER,
-        title: 'Invoice Due Soon',
-        message: `Invoice ${invoice.invoiceNumber} is due in ${daysBefore} days`,
+        title: 'תזכורת: תאריך יעד מתקרב',
+        message: `חשבונית ${invoice.invoiceNumber} תפוג בעוד ${daysBefore} ימים (${formattedDate})`,
         data: {
           invoiceId: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
@@ -238,6 +289,95 @@ export class NotificationService {
     } catch (error) {
       console.error('❌ Failed to send upcoming reminders:', error)
       throw error
+    }
+  }
+
+  /**
+   * התראה על לקוח חדש שנוסף
+   */
+  static async notifyCustomerCreated(customer: Customer) {
+    try {
+      await this.createNotification({
+        userId: customer.userId,
+        type: NotificationType.CUSTOMER_CREATED,
+        title: 'לקוח חדש נוסף',
+        message: `הלקוח ${customer.name} נוסף למערכת`,
+        data: {
+          customerId: customer.id,
+          customerName: customer.name,
+          email: customer.email,
+          createdAt: new Date()
+        },
+        actionUrl: `/dashboard/customers/${customer.id}`
+      })
+    } catch (error) {
+      console.error('❌ Failed to create customer created notification:', error)
+    }
+  }
+
+  /**
+   * התראה על עדכון פרטי לקוח
+   */
+  static async notifyCustomerUpdated(customer: Customer, updatedFields: string[]) {
+    try {
+      await this.createNotification({
+        userId: customer.userId,
+        type: NotificationType.CUSTOMER_UPDATED,
+        title: 'פרטי לקוח עודכנו',
+        message: `פרטי הלקוח ${customer.name} עודכנו (${updatedFields.join(', ')})`,
+        data: {
+          customerId: customer.id,
+          customerName: customer.name,
+          updatedFields,
+          updatedAt: new Date()
+        },
+        actionUrl: `/dashboard/customers/${customer.id}`
+      })
+    } catch (error) {
+      console.error('❌ Failed to create customer updated notification:', error)
+    }
+  }
+
+  /**
+   * התראה על מחיקת לקוח
+   */
+  static async notifyCustomerDeleted(customer: Customer) {
+    try {
+      await this.createNotification({
+        userId: customer.userId,
+        type: NotificationType.CUSTOMER_DELETED,
+        title: 'לקוח נמחק',
+        message: `הלקוח ${customer.name} נמחק מהמערכת`,
+        data: {
+          customerName: customer.name,
+          email: customer.email,
+          deletedAt: new Date()
+        }
+      })
+    } catch (error) {
+      console.error('❌ Failed to create customer deleted notification:', error)
+    }
+  }
+
+  /**
+   * התראה על עדכון הגדרות
+   */
+  static async notifySettingsUpdated(settings: UserSettings, updatedFields: string[]) {
+    try {
+      await this.createNotification({
+        userId: settings.userId,
+        type: NotificationType.SETTINGS_UPDATED,
+        title: 'הגדרות המערכת עודכנו',
+        message: `ההגדרות עודכנו (${updatedFields.join(', ')})`,
+        data: {
+          updatedFields,
+          updatedAt: new Date(),
+          previousSettings: settings
+        },
+        actionUrl: '/dashboard/settings'
+      })
+    } catch (error) {
+      console.error('❌ Failed to create settings updated notification:', error)
     }
   }
 

@@ -39,9 +39,10 @@ import {
   Eye,
   DollarSign
 } from 'lucide-react'
-import { formatDate, formatCurrency, getInvoiceStatusColor, getInvoiceStatusText } from '@/lib/utils'
+import { formatDate, formatCurrency } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTranslation } from '@/hooks/use-translation'
+import { InvoiceStatusBadge } from '@/components/invoices/Invoice-status-badge'
 
 export default function CustomerDetailPage() {
   const params = useParams()
@@ -94,7 +95,7 @@ export default function CustomerDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/customers">
-            <Button variant="ghost" size="sm">
+            <Button variant="secondary" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t('customer.newEdit.back')}
             </Button>
@@ -250,11 +251,13 @@ export default function CustomerDetailPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="flex flex-col items-end gap-2">
                         <p className="font-medium">{formatCurrency(Number(invoice.total))}</p>
-                        <Badge className={getInvoiceStatusColor(invoice.status)}>
-                          {getInvoiceStatusText(invoice.status)}
-                        </Badge>
+                        <InvoiceStatusBadge
+                          status={invoice.status}
+                          Badge={Badge}
+                          showIcon={true}
+                        />
                       </div>
                     </div>
                   ))}
@@ -369,7 +372,7 @@ function CustomerDetailSkeleton() {
                         <Skeleton className="h-3 w-32 mt-1" />
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="flex flex-col items-end gap-2">
                       <Skeleton className="h-4 w-16" />
                       <Skeleton className="h-5 w-12 mt-1" />
                     </div>

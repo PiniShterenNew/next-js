@@ -1,7 +1,6 @@
 'use client'
 
-import { useForm, type SubmitHandler } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { type SubmitHandler } from 'react-hook-form'
 import { userSettingsSchema, UserSettingsFormSchema } from '@/lib/validations'
 import { UserSettings, UpdateUserSettingsData } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -9,18 +8,18 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
-  SelectTrigger,
+  SelectTrigger,  
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { Loader2, Save, Building, CreditCard, Globe, Calculator } from 'lucide-react'
+import { Loader2, Save, Building, CreditCard, Calculator } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { useTranslatedForm } from '@/hooks/use-translated-form'
 
 interface SettingsFormProps {
   settings?: UserSettings
@@ -28,9 +27,9 @@ interface SettingsFormProps {
   isLoading?: boolean
 }
 
-export function SettingsForm({ 
-  settings, 
-  onSubmit, 
+export function SettingsForm({
+  settings,
+  onSubmit,
   isLoading = false
 }: SettingsFormProps) {
   const [enableTax, setEnableTax] = useState(true)
@@ -42,8 +41,7 @@ export function SettingsForm({
     formState: { errors, isSubmitting },
     setValue,
     watch,
-  } = useForm<UserSettingsFormSchema>({
-    resolver: zodResolver(userSettingsSchema) as any,
+  } = useTranslatedForm(userSettingsSchema, {
     defaultValues: {
       businessName: '',
       businessAddress: '',
@@ -67,7 +65,7 @@ export function SettingsForm({
       setValue('taxRate', Number(settings.taxRate))
       setValue('currency', settings.currency)
       setValue('invoicePrefix', settings.invoicePrefix)
-      
+
       setEnableTax(Number(settings.taxRate) > 0)
     }
   }, [settings, setValue])
@@ -83,7 +81,7 @@ export function SettingsForm({
         businessAddress: data.businessAddress?.trim() || undefined,
         businessPhone: data.businessPhone?.trim() || undefined,
       }
-      
+
       await onSubmit(submitData)
     } catch (error) {
       console.error('Form submission error:', error)
@@ -100,8 +98,8 @@ export function SettingsForm({
   }
 
   return (
-    <div className="gap-6">
-      <form onSubmit={handleSubmit(handleFormSubmit as any)} className="gap-6">
+    <div className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit(handleFormSubmit as any)} className="flex flex-col gap-6">
         {/* Business Information */}
         <Card>
           <CardHeader>
@@ -110,7 +108,7 @@ export function SettingsForm({
               <span>{t('business.title')}</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="gap-4">
+          <CardContent className="flex flex-col gap-4">
             {/* Business Name */}
             <div className="form-group">
               <Label htmlFor="businessName" className="form-label">
@@ -144,9 +142,6 @@ export function SettingsForm({
               {errors.businessEmail && (
                 <p className="form-error">{errors.businessEmail.message}</p>
               )}
-              <p className="text-xs text-muted-foreground mt-1">
-                {t('business.emailHelp')}
-              </p>
             </div>
 
             {/* Business Phone */}
@@ -194,7 +189,7 @@ export function SettingsForm({
               <span>{t('billing.title')}</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="gap-4">
+          <CardContent className="flex flex-col gap-4">
             <div className="grid gap-4 md:grid-cols-2">
               {/* Currency */}
               <div className="form-group">
@@ -252,10 +247,10 @@ export function SettingsForm({
               <span>{t('tax.title')}</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="gap-4">
+          <CardContent className="flex flex-col gap-4">
             {/* Enable Tax Toggle */}
             <div className="flex items-center justify-between">
-              <div className="gap-0.5">
+              <div className="flex flex-col gap-0.5">
                 <Label className="text-base">{t('tax.enable')}</Label>
                 <p className="text-sm text-muted-foreground">
                   {t('tax.enableDescription')}
@@ -286,7 +281,7 @@ export function SettingsForm({
                     className={errors.taxRate ? 'border-destructive' : ''}
                     disabled={isLoading || isSubmitting}
                   />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <div className="absolute inset-y-0 ltr:right-0 rtl:left-0 flex items-center px-3 pointer-events-none">
                     <span className="text-muted-foreground text-sm">%</span>
                   </div>
                 </div>

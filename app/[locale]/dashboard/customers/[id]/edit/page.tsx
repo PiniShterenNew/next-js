@@ -75,7 +75,7 @@ export default function EditCustomerPage() {
       {/* Back Button */}
       <div>
         <Link href={`/dashboard/customers/${customerId}`}>
-          <Button variant="ghost" size="sm">
+          <Button variant="secondary" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Customer Details
           </Button>

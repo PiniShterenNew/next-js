@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
           tax: totals.tax,
           discount: totals.discount,
           total: totals.total,
-          status: InvoiceStatus.DRAFT,
+          status: 'DRAFT' as const,
           items: {
             create: validatedData.items.map(item => ({
               description: item.description,
@@ -231,30 +231,58 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      // עדכון מספר החשבונית הבא
+      // עדכון מספר החשבונית הבא בהגדרות
       await tx.userSettings.update({
-        where: { userId: user.id },
+        where: { id: settings.id },
         data: { nextInvoiceNumber: settings.nextInvoiceNumber + 1 }
       })
 
       return newInvoice
     })
 
-    // יצירת התראה לחשבונית חדשה
-    try {
-      await NotificationService.notifyInvoiceCreated({
-        ...invoice,
-        userId: user.id
-      })
-    } catch (error) {
-      console.error('Failed to create notification:', error)
-      // לא נרצה שכשל ביצירת התראה יפסיק את יצירת החשבונית
+    // שליחת התראה על יצירת חשבונית חדשה
+    await NotificationService.notifyInvoiceCreated({
+      ...invoice,
+      userId: user.id
+    })
+
+    // המרת שדות מספריים
+    const invoiceWithNumericFields = {
+      ...invoice,
+      subtotal: Number(invoice.subtotal),
+      tax: Number(invoice.tax),
+      discount: Number(invoice.discount),
+      total: Number(invoice.total),
+      status: invoice.status as unknown as InvoiceStatus, // המרת הטיפוס
+    }
+
+    // יצירת אובייקט תגובה עם הטיפוס הנכון
+    const responseData: Invoice = {
+      ...invoiceWithNumericFields,
+      notes: invoice.notes || undefined,
+      customer: {
+        id: customer.id,
+        userId: user.id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone || undefined,
+        address: customer.address || undefined,
+        taxId: customer.taxId || undefined,
+        createdAt: customer.createdAt,
+        updatedAt: customer.updatedAt
+      },
+      items: invoice.items.map(item => ({
+        ...item,
+        quantity: Number(item.quantity),
+        unitPrice: Number(item.unitPrice),
+        total: Number(item.total)
+      }))
     }
 
     return NextResponse.json(
       {
         success: true,
-        data: invoice,
+        data: responseData,
         message: 'Invoice created successfully'
       } as ApiResponse<Invoice>,
       { status: 201 }

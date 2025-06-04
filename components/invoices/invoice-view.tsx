@@ -50,11 +50,12 @@ import {
     Users,
     Loader2
 } from 'lucide-react'
-import { formatDate, formatCurrency, getInvoiceStatusColor, getInvoiceStatusText } from '@/lib/utils'
+import { formatDate, formatCurrency } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { InvoiceStatus } from '@/types'
 import { toast } from 'sonner'
 import { useTranslation } from '@/hooks/use-translation'
+import { InvoiceStatusBadge } from './Invoice-status-badge'
 
 export default function InvoiceDetailPage() {
     const params = useParams()
@@ -134,7 +135,7 @@ export default function InvoiceDetailPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <Link href="/dashboard/invoices">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="secondary" size="sm">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             {t('invoice.backToInvoices')}
                         </Button>
@@ -143,7 +144,7 @@ export default function InvoiceDetailPage() {
                         <div className="flex items-center gap-3">
                             <h1 className="text-2xl md:text-3xl font-bold">{invoice.invoiceNumber}</h1>
                             <Button
-                                variant="ghost"
+                                variant="secondary"
                                 size="icon"
                                 onClick={handleCopyInvoiceNumber}
                                 className="h-8 w-8"
@@ -153,9 +154,12 @@ export default function InvoiceDetailPage() {
                             </Button>
                         </div>
                         <div className="flex flex-wrap items-center gap-2 mt-1">
-                            <Badge className={getInvoiceStatusColor(invoice.status)}>
-                                {getInvoiceStatusText(invoice.status)}
-                            </Badge>
+                            <InvoiceStatusBadge
+                                status={invoice.status}
+                                t={t}
+                                Badge={Badge}
+                                showIcon={true}
+                            />
                             <span className="text-muted-foreground">•</span>
                             <span className="text-muted-foreground">
                                 {t('invoice.dueDate')}: {formatDate(invoice.dueDate)}

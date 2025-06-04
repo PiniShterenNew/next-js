@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { customerSchema } from '@/lib/validations'
 import { ApiResponse, Customer } from '@/types'
+import { NotificationService } from '@/lib/notification-service'
 
 interface RouteParams {
   params: {
@@ -169,6 +170,30 @@ export async function PUT(
       }
     })
 
+    // יצירת התראה על עדכון לקוח
+    try {
+      // זיהוי השדות שהשתנו
+      const updatedFields = Object.keys(validatedData).filter(key => {
+        const k = key as keyof typeof validatedData;
+        return validatedData[k] !== existingCustomer[k as keyof typeof existingCustomer];
+      });
+      
+      // המרת האובייקט לטיפוס הנכון - המרת null ל-undefined
+      const customerForNotification = {
+        ...updatedCustomer,
+        userId: user.id,
+        phone: updatedCustomer.phone || undefined,
+        address: updatedCustomer.address || undefined,
+        taxId: updatedCustomer.taxId || undefined
+      };
+      
+      await NotificationService.notifyCustomerUpdated(customerForNotification, updatedFields)
+      console.log(`✅ Customer update notification created for customer ID: ${updatedCustomer.id}, user ID: ${user.id}`)
+    } catch (error) {
+      console.error('Failed to create customer updated notification:', error)
+      // לא נכשיל את הבקשה אם יצירת ההתראה נכשלה
+    }
+
     return NextResponse.json({
       success: true,
       data: updatedCustomer,
@@ -198,10 +223,10 @@ export async function PUT(
 
 // DELETE /api/customers/[id] - מחיקת לקוח
 export async function DELETE(
-request: NextRequest, context: { params: { id: string } }
+  request: NextRequest, { params }: { params: { id: string } }
 ) {
   try {
-     const { id } = context.params;
+    const { id } = await params;
     const { userId: clerkId } = await auth()
     
     if (!clerkId) {
@@ -257,6 +282,24 @@ request: NextRequest, context: { params: { id: string } }
     await db.customer.delete({
       where: { id: id }
     })
+
+    // יצירת התראה על מחיקת לקוח
+    try {
+      // המרת האובייקט לטיפוס הנכון - המרת null ל-undefined
+      const customerForNotification = {
+        ...customer,
+        userId: user.id,
+        phone: customer.phone || undefined,
+        address: customer.address || undefined,
+        taxId: customer.taxId || undefined
+      };
+      
+      await NotificationService.notifyCustomerDeleted(customerForNotification)
+      console.log(`✅ Customer delete notification created for customer ID: ${customer.id}, user ID: ${user.id}`)
+    } catch (error) {
+      console.error('Failed to create customer deleted notification:', error)
+      // לא נכשיל את הבקשה אם יצירת ההתראה נכשלה
+    }
 
     return NextResponse.json({
       success: true,

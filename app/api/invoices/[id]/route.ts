@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { invoiceSchema, updateInvoiceSchema } from '@/lib/validations' // ✅ import שני schemas
 import { ApiResponse, Invoice, InvoiceStatus } from '@/types'
 import { calculateInvoiceTotal } from '@/lib/utils'
+import { NotificationService } from '@/lib/notification-service'
 
 interface RouteParams {
   params: {
@@ -61,9 +62,24 @@ export async function GET(
       )
     }
 
+    // המרת שדות Decimal למספרים
+    const formattedInvoice = {
+      ...invoice,
+      subtotal: Number(invoice.subtotal),
+      tax: Number(invoice.tax),
+      discount: Number(invoice.discount),
+      total: Number(invoice.total),
+      items: invoice.items.map(item => ({
+        ...item,
+        quantity: Number(item.quantity),
+        unitPrice: Number(item.unitPrice),
+        total: Number(item.total)
+      }))
+    }
+
     return NextResponse.json({
       success: true,
-      data: invoice
+      data: formattedInvoice
     } as ApiResponse<Invoice>)
 
   } catch (error) {
@@ -210,9 +226,42 @@ export async function PUT(
       return invoice
     })
 
+    // שליחת התראה על עדכון חשבונית
+    try {
+      // זיהוי השדות שעודכנו
+      const updatedFields = Object.keys(validatedData).filter(key => {
+        if (key === 'items') return true // תמיד נחשב את הפריטים כמעודכנים
+        // בדיקה בטוחה של השדות
+        return key in existingInvoice && validatedData[key as keyof typeof validatedData] !== (existingInvoice as any)[key]
+      })
+
+      await NotificationService.notifyInvoiceUpdated({
+        ...updatedInvoice,
+        userId: user.id
+      }, updatedFields)
+    } catch (error) {
+      console.error('Failed to send invoice update notification:', error)
+      // לא נכשיל את כל הבקשה אם שליחת ההתראה נכשלה
+    }
+
+    // המרת שדות Decimal למספרים
+    const formattedInvoice = {
+      ...updatedInvoice,
+      subtotal: Number(updatedInvoice.subtotal),
+      tax: Number(updatedInvoice.tax),
+      discount: Number(updatedInvoice.discount),
+      total: Number(updatedInvoice.total),
+      items: updatedInvoice.items.map(item => ({
+        ...item,
+        quantity: Number(item.quantity),
+        unitPrice: Number(item.unitPrice),
+        total: Number(item.total)
+      }))
+    }
+
     return NextResponse.json({
       success: true,
-      data: updatedInvoice,
+      data: formattedInvoice,
       message: 'Invoice updated successfully'
     } as ApiResponse<Invoice>)
 
@@ -276,6 +325,9 @@ export async function DELETE(
       where: {
         id: resolvedParams.id,
         userId: user.id,
+      },
+      include: {
+        customer: true // כולל פרטי לקוח לצורך ההתראה
       }
     })
 
@@ -301,6 +353,18 @@ export async function DELETE(
     await db.invoice.delete({
       where: { id: resolvedParams.id }
     })
+    
+    // שליחת התראה על מחיקת חשבונית
+    try {
+      await NotificationService.notifyInvoiceDeleted({
+        ...invoice,
+        userId: user.id,
+        customer: invoice.customer || { name: 'לקוח' } // במקרה שאין מידע על הלקוח
+      })
+    } catch (error) {
+      console.error('Failed to send invoice deletion notification:', error)
+      // לא נכשיל את כל הבקשה אם שליחת ההתראה נכשלה
+    }
 
     return NextResponse.json({
       success: true,

@@ -50,7 +50,7 @@ import {
   Clock,
   XCircle
 } from 'lucide-react'
-import { formatDate, formatCurrency, getInvoiceStatusColor, getInvoiceStatusText, debounce } from '@/lib/utils'
+import { formatDate, formatCurrency, debounce } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTranslation } from '@/hooks/use-translation'
 import { useSettings } from '@/hooks/use-settings'
@@ -314,16 +314,10 @@ function InvoiceCard({ invoice, onDelete, onStatusChange }: InvoiceCardProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-3">
               <h3 className="text-lg font-semibold truncate">{invoice.invoiceNumber}</h3>
-              {/* <Badge className={getInvoiceStatusColor(invoice.status)}>
-                <div className="flex items-center gap-1">
-                  {getStatusIcon(invoice.status)}
-                  <span>{getInvoiceStatusText(invoice.status)}</span>
-                </div>
-              </Badge> */}
               <InvoiceStatusBadge
                 status={invoice.status}
-                t={t}
                 Badge={Badge}
+                showIcon={true}
               />
             </div>
 
@@ -365,7 +359,7 @@ function InvoiceCard({ invoice, onDelete, onStatusChange }: InvoiceCardProps) {
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="start">
                   {canEdit && (
                     <DropdownMenuItem asChild>
                       <Link href={`/dashboard/invoices/${invoice.id}/edit`}>

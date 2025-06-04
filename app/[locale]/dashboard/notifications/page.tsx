@@ -101,9 +101,9 @@ export default function NotificationsPage() {
       <Card>
         <CardContent className="p-6">
           <div className="text-center text-destructive">
-            <p>Error loading notifications: {error}</p>
+            <p>{t("notifications.shared.errorLoading", { message: error })}</p>
             <Button onClick={refreshNotifications} className="mt-4">
-              Try Again
+              {t("notifications.shared.tryAgain")}
             </Button>
           </div>
         </CardContent>
@@ -116,16 +116,16 @@ export default function NotificationsPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t("notifications.title")}</h1>
+          <h1 className="text-3xl font-bold">{t("notifications.page.title")}</h1>
           <p className="text-muted-foreground">
-            {t("notifications.description")}
+            {t("notifications.page.description")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {unreadCount > 0 && (
             <Button variant="outline" onClick={handleMarkAllRead}>
               <CheckCheck className="w-4 h-4 mr-2" />
-              {t('notifications.markAllRead', { unreadCount })}
+              {t('notifications.page.markAllRead', { unreadCount })}
             </Button>
           )}
         </div>
@@ -138,7 +138,7 @@ export default function NotificationsPage() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{t("notifications.filter")}:</span>
+                <span className="text-sm font-medium">{t("notifications.shared.filter")}:</span>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -149,7 +149,7 @@ export default function NotificationsPage() {
                     setPage(1)
                   }}
                 >
-                  {t("notifications.all")}
+                  {t("notifications.shared.all")}
                 </Button>
                 <Button
                   variant={filter === 'unread' ? 'default' : 'outline'}
@@ -159,7 +159,7 @@ export default function NotificationsPage() {
                     setPage(1)
                   }}
                 >
-                  {t("notifications.unread")}
+                  {t("notifications.shared.unread")}
                   {unreadCount > 0 && (
                     <Badge variant="secondary" className="ml-2">
                       {unreadCount}
@@ -170,7 +170,7 @@ export default function NotificationsPage() {
             </div>
 
             <div className="text-sm text-muted-foreground">
-              {pagination ? t("notifications.count", { count: pagination.total }) : t("notifications.loading")}
+              {pagination ? t("notifications.shared.count", { count: pagination.total }) : t("notifications.shared.loading")}
             </div>
           </div>
         </CardContent>
@@ -201,12 +201,15 @@ export default function NotificationsPage() {
             <div className="text-center">
               <Bell className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
               <h3 className="text-lg font-semibold mb-2">
-                {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
+                {filter === 'unread' 
+                  ? t('notifications.shared.empty.unread.title') 
+                  : t('notifications.shared.empty.all.title')
+                }
               </h3>
               <p className="text-muted-foreground">
                 {filter === 'unread'
-                  ? "You're all caught up! All notifications have been read."
-                  : "We'll notify you when something important happens with your invoices."
+                  ? t('notifications.shared.empty.unread.description')
+                  : t('notifications.shared.empty.all.description')
                 }
               </p>
             </div>
@@ -235,17 +238,20 @@ export default function NotificationsPage() {
             onClick={() => setPage(page - 1)}
             disabled={page <= 1 || loading}
           >
-            Previous
+            {t("notifications.page.pagination.previous")}
           </Button>
           <span className="text-sm text-muted-foreground">
-            Page {page} of {pagination.totalPages}
+            {t("notifications.page.pagination.pageInfo", { 
+              current: page, 
+              total: pagination.totalPages 
+            })}
           </span>
           <Button
             variant="outline"
             onClick={() => setPage(page + 1)}
             disabled={page >= pagination.totalPages || loading}
           >
-            Next
+            {t("notifications.page.pagination.next")}
           </Button>
         </div>
       )}
@@ -257,18 +263,18 @@ export default function NotificationsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Notification</AlertDialogTitle>
+            <AlertDialogTitle>{t("notifications.page.delete.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this notification? This action cannot be undone.
+              {t("notifications.page.delete.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("notifications.page.delete.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => selectedNotification && handleDeleteNotification(selectedNotification)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t("notifications.page.delete.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -292,6 +298,8 @@ function NotificationCard({
   onClick,
   getIcon
 }: NotificationCardProps) {
+  const { t } = useTranslation()
+  
   const content = (
     <Card className={cn(
       "transition-all duration-200 hover:shadow-md cursor-pointer",
@@ -321,7 +329,7 @@ function NotificationCard({
                   <span>{formatDate(notification.createdAt, 'MMM dd, yyyy • HH:mm')}</span>
                   {!notification.read && (
                     <Badge variant="secondary" className="text-xs">
-                      New
+                      {t("notifications.page.badges.new")}
                     </Badge>
                   )}
                 </div>
@@ -348,7 +356,7 @@ function NotificationCard({
                       }}
                     >
                       <Check className="w-4 h-4 mr-2" />
-                      Mark as Read
+                      {t("notifications.page.actions.markAsRead")}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem
@@ -359,7 +367,7 @@ function NotificationCard({
                     className="text-destructive focus:text-destructive"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
+                    {t("notifications.page.actions.delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

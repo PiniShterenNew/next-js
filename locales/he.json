@@ -184,17 +184,58 @@
     }
   },
   "notifications": {
-    "title": "התראות",
-    "description": "הישארו מעודכנים בפעילות העסקית שלכם",
-    "markAllRead": "סמן הכל כנקרא ({unreadCount})",
-    "filter": "מיון",
-    "all": "כל ההתראות",
-    "unread": "התראות שלא נקראו",
-    "loading": "טוען התראות...",
-    "count": "{count, plural, one {התראה אחת} two {שתי התראות} few {# התראות} many {# התראות} other {# התראות}}",
-    "empty": "אין התראות",
-    "noNotifications": "נודיע לך כאשר משהו יקרה",
-    "viewAll": "צפה בכל ההתראות"
+    "shared": {
+      "errorLoading": "שגיאה בטעינת התראות: {message}",
+      "tryAgain": "נסה שוב",
+      "loading": "טוען...",
+      "filter": "סינון",
+      "all": "כל ההתראות",
+      "unread": "התראות שלא נקראו",
+      "count": "{count, plural, one {התראה אחת} other {# התראות}}",
+      "empty": {
+        "unread": {
+          "title": "אין התראות חדשות",
+          "description": "הכל בסדר! כל ההתראות נקראו."
+        },
+        "all": {
+          "title": "אין התראות עדיין",
+          "description": "אנחנו נודיע לך כשיקרה משהו חשוב עם החשבוניות שלך."
+        }
+      }
+    },
+    "page": {
+      "title": "התראות",
+      "description": "הישאר מעודכן עם הפעילות העסקית שלך",
+      "markAllRead": "סמן הכל כנקרא ({unreadCount})",
+      "pagination": {
+        "previous": "הקודם",
+        "next": "הבא",
+        "pageInfo": "עמוד {current} מתוך {total}"
+      },
+      "actions": {
+        "markAsRead": "סמן כנקרא",
+        "delete": "מחק"
+      },
+      "delete": {
+        "title": "מחק התראה",
+        "description": "האם אתה בטוח שברצונך למחוק התראה זו? פעולה זו לא ניתנת לביטול.",
+        "cancel": "ביטול",
+        "confirm": "מחק"
+      },
+      "badges": {
+        "new": "חדש"
+      }
+    },
+    "dropdown": {
+      "title": "התראות",
+      "markAllRead": "סמן הכל כנקרא",
+      "viewAll": "צפה בכל ההתראות",
+      "empty": {
+        "title": "אין התראות",
+        "description": "אנחנו נודיע לך כשמשהו יקרה"
+      },
+      "loading": "טוען התראות..."
+    }
   },
   "settings": {
     "title": "הגדרות",
@@ -242,6 +283,10 @@
       "billing": {
         "title": "הגדרות חיוב",
         "currency": "מטבע ברירת מחדל",
+        "currencyILS": "ILS",
+        "currencyUSD": "USD",
+        "currencyEUR": "EUR",
+        "currencyGBP": "GBP",
         "prefix": "קידומת חשבונית",
         "prefixPlaceholder": "INV",
         "prefixHelp": "דוגמה: INV-0001, BILL-0001"
@@ -586,6 +631,79 @@
       "help": "מרכז עזרה",
       "contact": "צור קשר",
       "copyright": "כל הזכויות שמורות"
+    }
+  },
+  "validation": {
+    "customer": {
+      "name": {
+        "min": "השם חייב להכיל לפחות 2 תווים",
+        "max": "השם חייב להיות פחות מ-100 תווים"
+      },
+      "email": {
+        "invalid": "אנא הזן כתובת אימייל תקינה",
+        "max": "האימייל חייב להיות פחות מ-255 תווים"
+      },
+      "phone": {
+        "invalid": "אנא הזן מספר טלפון תקין"
+      },
+      "address": {
+        "max": "הכתובת חייבת להיות פחות מ-500 תווים"
+      },
+      "taxId": {
+        "invalid": "אנא הזן מספר עוסק מורשה תקין (8-9 ספרות)"
+      }
+    },
+    "invoice": {
+      "customerId": {
+        "required": "אנא בחר לקוח"
+      },
+      "dueDate": {
+        "required": "אנא בחר תאריך פירעון",
+        "pastDate": "תאריך הפירעון לא יכול להיות בעבר"
+      },
+      "notes": {
+        "max": "ההערות חייבות להיות פחות מ-1000 תווים"
+      },
+      "discount": {
+        "negative": "ההנחה לא יכולה להיות שלילית",
+        "tooLarge": "ההנחה גדולה מדי"
+      },
+      "items": {
+        "min": "נדרש לפחות פריט אחד",
+        "max": "מקסימום 50 פריטים לחשבונית"
+      }
+    },
+    "invoiceItem": {
+      "description": {
+        "required": "תיאור נדרש",
+        "max": "התיאור חייב להיות פחות מ-500 תווים"
+      },
+      "quantity": {
+        "required": "כמות נדרשת",
+        "min": "הכמות חייבת להיות גדולה מ-0",
+        "max": "הכמות גדולה מדי"
+      },
+      "unitPrice": {
+        "required": "מחיר יחידה נדרש",
+        "negative": "מחיר היחידה לא יכול להיות שלילי",
+        "max": "מחיר היחידה גדול מדי"
+      }
+    },
+    "settings": {
+      "businessEmail": {
+        "invalid": "אנא הזן כתובת אימייל תקינה"
+      },
+      "taxRate": {
+        "negative": "שיעור המס לא יכול להיות שלילי",
+        "max": "שיעור המס לא יכול לעבור 100%"
+      },
+      "currency": {
+        "length": "קוד המטבע חייב להיות בן 3 תווים"
+      },
+      "invoicePrefix": {
+        "required": "קידומת חשבונית נדרשת",
+        "max": "קידומת החשבונית חייבת להיות פחות מ-10 תווים"
+      }
     }
   }
 }

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { userSettingsSchema } from '@/lib/validations'
-import { ApiResponse, UserSettings } from '@/types'
+import { ApiResponse, type UserSettings } from '@/types'
+import { NotificationService } from '@/lib/notification-service'
 
 // GET /api/settings - קבלת הגדרות המשתמש
 export async function GET(request: NextRequest) {
@@ -46,9 +47,19 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    // המרת Decimal למספר רגיל וטיפול בערכים null
+    const serializedSettings: UserSettings = {
+      ...settings,
+      taxRate: settings.taxRate.toNumber(),
+      businessName: settings.businessName || undefined,
+      businessAddress: settings.businessAddress || undefined,
+      businessPhone: settings.businessPhone || undefined,
+      businessEmail: settings.businessEmail || undefined,
+    }
+
     return NextResponse.json({
       success: true,
-      data: settings
+      data: serializedSettings
     } as ApiResponse<UserSettings>)
 
   } catch (error) {
@@ -87,19 +98,60 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const validatedData = userSettingsSchema.parse(body)
 
-    // עדכון או יצירת הגדרות
-    const settings = await db.userSettings.upsert({
-      where: { userId: user.id },
-      update: validatedData,
-      create: {
-        ...validatedData,
-        userId: user.id,
-      }
+    // קבלת ההגדרות הקיימות
+    const currentSettings = await db.userSettings.findUnique({
+      where: { userId: user.id }
     })
+
+    if (!currentSettings) {
+      return NextResponse.json(
+        { success: false, error: 'Settings not found' } as ApiResponse,
+        { status: 404 }
+      )
+    }
+
+    // עדכון ההגדרות
+    const updatedSettings = await db.userSettings.update({
+      where: { userId: user.id },
+      data: validatedData,
+    })
+
+    // מציאת השדות שהשתנו
+    const updatedFields = Object.keys(validatedData).filter(
+      key => JSON.stringify(validatedData[key as keyof typeof validatedData]) !== 
+            JSON.stringify(currentSettings[key as keyof typeof currentSettings])
+    )
+
+    // המרת Decimal למספר רגיל וטיפול בערכים null
+    const serializedUpdatedSettings: UserSettings = {
+      ...updatedSettings,
+      taxRate: updatedSettings.taxRate.toNumber(),
+      businessName: updatedSettings.businessName || undefined,
+      businessAddress: updatedSettings.businessAddress || undefined,
+      businessPhone: updatedSettings.businessPhone || undefined,
+      businessEmail: updatedSettings.businessEmail || undefined,
+    }
+
+    // שליחת התראה על עדכון הגדרות
+    if (updatedFields.length > 0) {
+      try {
+        // המרת האובייקט לטיפוס הנכון
+        const settingsForNotification = {
+          ...serializedUpdatedSettings,
+          userId: user.id
+        };
+        
+        await NotificationService.notifySettingsUpdated(settingsForNotification, updatedFields)
+        console.log(`✅ Settings update notification created for user ID: ${user.id}`)
+      } catch (error) {
+        console.error('❌ Failed to create settings update notification:', error)
+        // לא נכשיל את הבקשה אם יצירת ההתראה נכשלה
+      }
+    }
 
     return NextResponse.json({
       success: true,
-      data: settings,
+      data: serializedUpdatedSettings,
       message: 'Settings updated successfully'
     } as ApiResponse<UserSettings>)
 

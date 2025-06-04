@@ -69,7 +69,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto gap-6">
+    <div className="max-w-4xl mx-auto flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -90,7 +90,7 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           {user ? (
-            <div className="gap-3">
+            <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">{t('account.name')}:</span>
                 <span className="text-sm text-muted-foreground">
@@ -117,7 +117,7 @@ export default function SettingsPage() {
               </div>
             </div>
           ) : (
-            <div className="gap-3">
+            <div className="flex flex-col gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center justify-between">
                   <Skeleton className="h-4 w-20" />
@@ -148,7 +148,7 @@ export default function SettingsPage() {
             <span>{t('export.title')}</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="gap-4">
+        <CardContent className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-medium">{t('export.title')}</h3>
@@ -193,13 +193,13 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="gap-2">
+              <div className="flex flex-col gap-2">
                 <p className="text-sm font-medium">{t('statistics.nextNumber')}:</p>
                 <p className="text-2xl font-bold">
                   {settings.invoicePrefix}-{settings.nextInvoiceNumber.toString().padStart(4, '0')}
                 </p>
               </div>
-              <div className="gap-2">
+              <div className="flex flex-col gap-2">
                 <p className="text-sm font-medium">{t('statistics.taxRate')}:</p>
                 <p className="text-2xl font-bold">
                   {Number(settings.taxRate)}%
@@ -249,7 +249,7 @@ export default function SettingsPage() {
 
 function SettingsFormSkeleton() {
   return (
-    <div className="gap-6">
+    <div className="flex flex-col gap-6">
       {Array.from({ length: 3 }).map((_, i) => (
         <Card key={i}>
           <CardHeader>
@@ -258,7 +258,7 @@ function SettingsFormSkeleton() {
               <Skeleton className="h-6 w-32" />
             </div>
           </CardHeader>
-          <CardContent className="gap-4">
+          <CardContent className="flex flex-col gap-4">
             {Array.from({ length: 3 }).map((_, j) => (
               <div key={j} className="form-group">
                 <Skeleton className="h-4 w-24 mb-2" />
