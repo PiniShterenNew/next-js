@@ -17,7 +17,7 @@ export async function createInvoice(data: { clientName: string; items: InvoiceIt
   });
 }
 
-// שלוף קבלות
+// שלוף חשבוניות
 export async function getInvoices() {
   return db.invoice.findMany({ include: { items: true } });
 }
