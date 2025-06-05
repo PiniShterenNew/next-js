@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
+import { requireDbUser } from '@/lib/auth-utils'
 import { invoiceSchema, updateInvoiceSchema } from '@/lib/validations' // ✅ import שני schemas
 import { ApiResponse, Invoice, InvoiceStatus } from '@/types'
 import { calculateInvoiceTotal } from '@/lib/utils'
@@ -18,25 +19,9 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const { userId: clerkId } = await auth()
-    
-    if (!clerkId) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' } as ApiResponse,
-        { status: 401 }
-      )
-    }
-
-    const user = await db.user.findUnique({
-      where: { clerkId }
-    })
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' } as ApiResponse,
-        { status: 404 }
-      )
-    }
+    const currentUser = await requireDbUser(request)
+    if (currentUser instanceof NextResponse) return currentUser
+    const user = currentUser
 
     const resolvedParams = await params
     const invoice = await db.invoice.findFirst({
@@ -97,25 +82,16 @@ export async function PUT(
   { params }: RouteParams
 ) {
   try {
-    const { userId: clerkId } = await auth()
-    
-    if (!clerkId) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' } as ApiResponse,
-        { status: 401 }
-      )
-    }
-
+    const currentUser = await requireDbUser(request)
+    if (currentUser instanceof NextResponse) return currentUser
     const user = await db.user.findUnique({
-      where: { clerkId },
+      where: { id: currentUser.id },
       include: { settings: true }
     })
-
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' } as ApiResponse,
-        { status: 404 }
-      )
+      const signInUrl = new URL('/sign-in', request.url)
+      signInUrl.searchParams.set('redirect_url', request.url)
+      return NextResponse.redirect(signInUrl)
     }
 
     const body = await request.json()
@@ -298,25 +274,9 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { userId: clerkId } = await auth()
-    
-    if (!clerkId) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' } as ApiResponse,
-        { status: 401 }
-      )
-    }
-
-    const user = await db.user.findUnique({
-      where: { clerkId }
-    })
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' } as ApiResponse,
-        { status: 404 }
-      )
-    }
+    const currentUser = await requireDbUser(request)
+    if (currentUser instanceof NextResponse) return currentUser
+    const user = currentUser
 
     const resolvedParams = await params
 
