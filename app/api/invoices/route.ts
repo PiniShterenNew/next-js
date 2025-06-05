@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { requireDbUser } from '@/lib/auth-utils'
 import { invoiceSchema } from '@/lib/validations'
 import { ApiResponse, Invoice, InvoiceStatus } from '@/types'
 import { generateInvoiceNumber, calculateInvoiceTotal } from '@/lib/utils'
@@ -11,9 +10,25 @@ import { NotificationService } from '@/lib/notification-service'
 // GET /api/invoices - קבלת כל החשבוניות של המשתמש
 export async function GET(request: NextRequest) {
   try {
-    const currentUser = await requireDbUser(request)
-    if (currentUser instanceof NextResponse) return currentUser
-    const user = currentUser
+    const { userId: clerkId } = await auth()
+
+    if (!clerkId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' } as ApiResponse,
+        { status: 401 }
+      )
+    }
+
+    const user = await db.user.findUnique({
+      where: { clerkId }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' } as ApiResponse,
+        { status: 404 }
+      )
+    }
 
     // קבלת פרמטרי חיפוש וסינון
     const { searchParams } = new URL(request.url)
@@ -103,16 +118,25 @@ export async function GET(request: NextRequest) {
 // POST /api/invoices - יצירת חשבונית חדשה
 export async function POST(request: NextRequest) {
   try {
-    const currentUser = await requireDbUser(request)
-    if (currentUser instanceof NextResponse) return currentUser
+    const { userId: clerkId } = await auth()
+
+    if (!clerkId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' } as ApiResponse,
+        { status: 401 }
+      )
+    }
+
     const user = await db.user.findUnique({
-      where: { id: currentUser.id },
+      where: { clerkId },
       include: { settings: true }
     })
+
     if (!user) {
-      const signInUrl = new URL('/sign-in', request.url)
-      signInUrl.searchParams.set('redirect_url', request.url)
-      return NextResponse.redirect(signInUrl)
+      return NextResponse.json(
+        { success: false, error: 'User not found' } as ApiResponse,
+        { status: 404 }
+      )
     }
 
     const body = await request.json()
