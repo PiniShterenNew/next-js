@@ -108,6 +108,7 @@ export default function SignUpForm() {
 
       if (completeSignUp.status === 'complete') {
         await setActive({ session: completeSignUp.createdSessionId })
+        await fetch('/api/ensure-user', { method: 'POST' })
         router.push('/dashboard')
       }
     } catch (err: unknown) {

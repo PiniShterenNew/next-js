@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
+import { requireDbUser } from '@/lib/auth-utils'
 import { ApiResponse, PaginatedResponse, NotificationType } from '@/types'
 
 export interface Notification {
@@ -20,26 +21,9 @@ export interface Notification {
 // GET /api/notifications - קבלת כל ההתראות של המשתמש
 export async function GET(request: NextRequest) {
   try {
-    const { userId: clerkId } = await auth()
-    
-    if (!clerkId) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' } as ApiResponse,
-        { status: 401 }
-      )
-    }
-
-    // מציאת המשתמש בדאטהבייס
-    const user = await db.user.findUnique({
-      where: { clerkId }
-    })
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' } as ApiResponse,
-        { status: 404 }
-      )
-    }
+    const currentUser = await requireDbUser(request)
+    if (currentUser instanceof NextResponse) return currentUser
+    const user = currentUser
 
     // קבלת פרמטרי חיפוש
     const { searchParams } = new URL(request.url)
@@ -95,25 +79,9 @@ export async function GET(request: NextRequest) {
 // POST /api/notifications - יצירת התראה חדשה (לשימוש פנימי)
 export async function POST(request: NextRequest) {
   try {
-    const { userId: clerkId } = await auth()
-    
-    if (!clerkId) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' } as ApiResponse,
-        { status: 401 }
-      )
-    }
-
-    const user = await db.user.findUnique({
-      where: { clerkId }
-    })
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' } as ApiResponse,
-        { status: 404 }
-      )
-    }
+    const currentUser = await requireDbUser(request)
+    if (currentUser instanceof NextResponse) return currentUser
+    const user = currentUser
 
     const body = await request.json()
     const { type, title, message, data, actionUrl, targetUserId } = body
