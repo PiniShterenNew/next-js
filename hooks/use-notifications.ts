@@ -3,7 +3,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 export interface Notification {
   id: string
@@ -152,7 +151,7 @@ export function useNotifications({
   // Mark all notifications as read
   const markAllAsRead = async (): Promise<void> => {
     try {
-      const response = await fetchWithAuth('/api/notifications/mark-all-read', {
+      const response = await fetch('/api/notifications/mark-all-read', {
         method: 'PATCH',
       })
 
@@ -309,7 +308,7 @@ export function useUnreadNotificationsCount() {
   const fetchUnreadCount = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await fetchWithAuth('/api/notifications?limit=1&unreadOnly=true')
+      const response = await fetch('/api/notifications?limit=1&unreadOnly=true')
       const data = await response.json()
 
       if (data.success) {

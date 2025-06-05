@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Customer, ApiResponse, PaginatedResponse, CreateCustomerData, UpdateCustomerData } from '@/types'
 import { toast } from 'sonner'
-import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 interface UseCustomersOptions {
   search?: string
@@ -85,7 +84,7 @@ export function useCustomers({
     try {
       setError(null)
 
-      const response = await fetchWithAuth('/api/customers', {
+      const response = await fetch('/api/customers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +120,7 @@ export function useCustomers({
     try {
       setError(null)
 
-      const response = await fetchWithAuth(`/api/customers/${id}`, {
+      const response = await fetch(`/api/customers/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +156,7 @@ export function useCustomers({
     try {
       setError(null)
 
-      const response = await fetchWithAuth(`/api/customers/${id}`, {
+      const response = await fetch(`/api/customers/${id}`, {
         method: 'DELETE',
       })
 
@@ -220,7 +219,7 @@ export function useCustomer(id: string) {
       setLoading(true)
       setError(null)
 
-      const response = await fetchWithAuth(`/api/customers/${id}`)
+      const response = await fetch(`/api/customers/${id}`)
       const data: ApiResponse<Customer> = await response.json()
 
       if (!response.ok) {

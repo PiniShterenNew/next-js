@@ -5,7 +5,6 @@ import { useState, useCallback } from 'react'
 import { Invoice, ApiResponse, PaginatedResponse, CreateInvoiceData, UpdateInvoiceData, InvoiceStatus } from '@/types'
 import { toast } from 'sonner'
 import { appCache, CACHE_KEYS, CACHE_TTL, cacheUtils, useCachedFetch } from '@/lib/cache'
-import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 interface UseInvoicesOptions {
   search?: string
@@ -93,7 +92,7 @@ export function useEnhancedInvoices({
   // Create invoice
   const createInvoice = async (data: CreateInvoiceData): Promise<Invoice | null> => {
     try {
-      const response = await fetchWithAuth('/api/invoices', {
+      const response = await fetch('/api/invoices', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +131,7 @@ export function useEnhancedInvoices({
   // Update invoice
   const updateInvoice = async (id: string, data: UpdateInvoiceData): Promise<Invoice | null> => {
     try {
-      const response = await fetchWithAuth(`/api/invoices/${id}`, {
+      const response = await fetch(`/api/invoices/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +171,7 @@ export function useEnhancedInvoices({
   // Update invoice status
   const updateInvoiceStatus = async (id: string, status: InvoiceStatus): Promise<Invoice | null> => {
     try {
-      const response = await fetchWithAuth(`/api/invoices/${id}/status`, {
+      const response = await fetch(`/api/invoices/${id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -212,7 +211,7 @@ export function useEnhancedInvoices({
   // Delete invoice
   const deleteInvoice = async (id: string): Promise<boolean> => {
     try {
-      const response = await fetchWithAuth(`/api/invoices/${id}`, {
+      const response = await fetch(`/api/invoices/${id}`, {
         method: 'DELETE',
       })
 
@@ -264,7 +263,7 @@ export function useEnhancedInvoice(id: string) {
   const cacheKey = CACHE_KEYS.INVOICE(id)
 
   const fetcher = useCallback(async (): Promise<Invoice> => {
-    const response = await fetchWithAuth(`/api/invoices/${id}`)
+    const response = await fetch(`/api/invoices/${id}`)
     const data: ApiResponse<Invoice> = await response.json()
 
     if (!response.ok) {
@@ -304,7 +303,7 @@ export function useEnhancedInvoiceStats() {
 
   const fetcher = useCallback(async () => {
     // כאן נטען את כל החשבוניות ונחשב סטטיסטיקות
-    const response = await fetchWithAuth('/api/invoices?limit=1000')
+    const response = await fetch('/api/invoices?limit=1000')
     const data: PaginatedResponse<Invoice> = await response.json()
 
     if (data.success && data.data) {
