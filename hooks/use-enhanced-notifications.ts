@@ -3,6 +3,7 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { useGlobalApp } from '@/context/AppContext'
 import { appCache, CACHE_KEYS, CACHE_TTL, cacheUtils, useCachedFetch } from '@/lib/cache'
 
@@ -159,7 +160,7 @@ export function useEnhancedNotifications({
   // Mark all notifications as read
   const markAllAsRead = async (): Promise<void> => {
     try {
-      const response = await fetch('/api/notifications/mark-all-read', {
+      const response = await fetchWithAuth('/api/notifications/mark-all-read', {
         method: 'PATCH',
       })
 
@@ -291,7 +292,7 @@ export function useUnreadNotificationsCount() {
     loading: false, 
     refetch: async () => {
       // רענן דרך fetch של כל ההתראות
-      const response = await fetch('/api/notifications?limit=1&unreadOnly=true')
+      const response = await fetchWithAuth('/api/notifications?limit=1&unreadOnly=true')
       const data = await response.json()
       if (data.success) {
         actions.updateUnreadCount(data.unreadCount || 0)
