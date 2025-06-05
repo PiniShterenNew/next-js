@@ -2,15 +2,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { requireDbUser } from '@/lib/auth-utils'
 import { ApiResponse } from '@/types'
 
 // PATCH /api/notifications/mark-all-read - סימון כל ההתראות כנקראו
 export async function PATCH(request: NextRequest) {
   try {
-    const currentUser = await requireDbUser(request)
-    if (currentUser instanceof NextResponse) return currentUser
-    const user = currentUser
+    const { userId: clerkId } = await auth()
+    
+    if (!clerkId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' } as ApiResponse,
+        { status: 401 }
+      )
+    }
+
+    const user = await db.user.findUnique({
+      where: { clerkId }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' } as ApiResponse,
+        { status: 404 }
+      )
+    }
 
     // עדכון כל ההתראות הלא נקראות של המשתמש
     const result = await db.notification.updateMany({

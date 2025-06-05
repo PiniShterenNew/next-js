@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { requireDbUser } from '@/lib/auth-utils'
 import { customerSchema } from '@/lib/validations'
 import { ApiResponse, Customer } from '@/types'
 import { NotificationService } from '@/lib/notification-service'
@@ -10,10 +9,26 @@ import { NotificationService } from '@/lib/notification-service'
 // GET /api/customers - קבלת כל הלקוחות של המשתמש
 export async function GET(request: NextRequest) {
   try {
-    const currentUser = await requireDbUser(request)
-    if (currentUser instanceof NextResponse) return currentUser
+    const { userId: clerkId } = await auth()
+    
+    if (!clerkId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' } as ApiResponse,
+        { status: 401 }
+      )
+    }
 
-    const user = currentUser
+    // מציאת המשתמש בדאטהבייס
+    const user = await db.user.findUnique({
+      where: { clerkId }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' } as ApiResponse,
+        { status: 404 }
+      )
+    }
 
     // קבלת פרמטרי חיפוש
     const { searchParams } = new URL(request.url)
@@ -75,9 +90,26 @@ export async function GET(request: NextRequest) {
 // POST /api/customers - יצירת לקוח חדש
 export async function POST(request: NextRequest) {
   try {
-    const currentUser = await requireDbUser(request)
-    if (currentUser instanceof NextResponse) return currentUser
-    const user = currentUser
+    const { userId: clerkId } = await auth()
+    
+    if (!clerkId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' } as ApiResponse,
+        { status: 401 }
+      )
+    }
+
+    // מציאת המשתמש בדאטהבייס
+    const user = await db.user.findUnique({
+      where: { clerkId }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' } as ApiResponse,
+        { status: 404 }
+      )
+    }
 
     const body = await request.json()
     
