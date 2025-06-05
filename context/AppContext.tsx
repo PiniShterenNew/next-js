@@ -4,6 +4,7 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react'
 import { UserSettings } from '@/types'
 import { useUser } from '@clerk/nextjs'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 // Global State Types
 interface GlobalAppState {
@@ -122,7 +123,7 @@ export function GlobalAppProvider({ children }: { children: ReactNode }) {
       try {
         dispatch({ type: 'SET_SETTINGS_LOADING', payload: true })
         
-        const response = await fetch('/api/settings')
+        const response = await fetchWithAuth('/api/settings')
         const data = await response.json()
         
         if (data.success && data.data) {
@@ -137,7 +138,7 @@ export function GlobalAppProvider({ children }: { children: ReactNode }) {
 
     async updateSettings(settings: UserSettings) {
       try {
-        const response = await fetch('/api/settings', {
+        const response = await fetchWithAuth('/api/settings', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(settings)

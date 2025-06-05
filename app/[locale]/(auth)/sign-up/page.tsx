@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { ClerkError } from '@/types'
 import { getClerkErrorMessage } from '@/lib/clerk/getClerkErrorMessage'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 export default function SignUpForm() {
   const t = useTranslations("auth");
@@ -108,7 +109,7 @@ export default function SignUpForm() {
 
       if (completeSignUp.status === 'complete') {
         await setActive({ session: completeSignUp.createdSessionId })
-        await fetch('/api/ensure-user', { method: 'POST' })
+        await fetchWithAuth('/api/ensure-user', { method: 'POST' })
         router.push('/dashboard')
       }
     } catch (err: unknown) {

@@ -5,6 +5,7 @@ import { useState, useCallback } from 'react'
 import { Customer, ApiResponse, PaginatedResponse, CreateCustomerData, UpdateCustomerData } from '@/types'
 import { toast } from 'sonner'
 import { appCache, CACHE_KEYS, CACHE_TTL, cacheUtils, useCachedFetch } from '@/lib/cache'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 interface UseCustomersOptions {
   search?: string
@@ -53,7 +54,7 @@ export function useEnhancedCustomers({
       ...(search && { search })
     })
 
-    const response = await fetch(`/api/customers?${params}`)
+    const response = await fetchWithAuth(`/api/customers?${params}`)
     const data: PaginatedResponse<Customer> = await response.json()
 
     if (!response.ok) {
@@ -85,7 +86,7 @@ export function useEnhancedCustomers({
   // Create customer
   const createCustomer = async (data: CreateCustomerData): Promise<Customer | null> => {
     try {
-      const response = await fetch('/api/customers', {
+      const response = await fetchWithAuth('/api/customers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +125,7 @@ export function useEnhancedCustomers({
   // Update customer
   const updateCustomer = async (id: string, data: UpdateCustomerData): Promise<Customer | null> => {
     try {
-      const response = await fetch(`/api/customers/${id}`, {
+      const response = await fetchWithAuth(`/api/customers/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +165,7 @@ export function useEnhancedCustomers({
   // Delete customer
   const deleteCustomer = async (id: string): Promise<boolean> => {
     try {
-      const response = await fetch(`/api/customers/${id}`, {
+      const response = await fetchWithAuth(`/api/customers/${id}`, {
         method: 'DELETE',
       })
 
@@ -215,7 +216,7 @@ export function useEnhancedCustomer(id: string) {
   const cacheKey = CACHE_KEYS.CUSTOMER(id)
 
   const fetcher = useCallback(async (): Promise<Customer> => {
-    const response = await fetch(`/api/customers/${id}`)
+    const response = await fetchWithAuth(`/api/customers/${id}`)
     const data: ApiResponse<Customer> = await response.json()
 
     if (!response.ok) {

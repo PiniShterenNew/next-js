@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { getClerkErrorMessage } from '@/lib/clerk/getClerkErrorMessage'
 import { ClerkError } from '@/types'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 export default function SignInForm() {
   const t = useTranslations("auth");
@@ -52,7 +53,7 @@ export default function SignInForm() {
 
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId })
-        await fetch('/api/ensure-user', { method: 'POST' })
+        await fetchWithAuth('/api/ensure-user', { method: 'POST' })
         router.push('/dashboard')
       }
     } catch (err: unknown) {
