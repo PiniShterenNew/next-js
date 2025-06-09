@@ -3,7 +3,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useNotifications, NotificationType } from '@/hooks/use-notifications'
+import { useNotifications } from '@/hooks/use-notifications'
+import { NotificationType } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -17,16 +18,17 @@ import {
   Bell,
   Check,
   CheckCheck,
+  X,
+  Eye,
   FileText,
   DollarSign,
   AlertTriangle,
-  Calendar,
-  X,
-  Eye
+  Calendar
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { useTranslation } from '@/hooks/use-translation'
+import { getNotificationIcon } from '@/lib/notification-types'
 
 export function NotificationsDropdown() {
   const [isOpen, setIsOpen] = useState(false)

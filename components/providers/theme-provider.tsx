@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useGlobalApp } from '@/context/AppContext'
 
 type Theme = 'dark' | 'light' | 'system'
@@ -39,15 +39,58 @@ export function ThemeProvider({
   disableTransitionOnChange = false,
   ...props
 }: ThemeProviderProps) {
-  const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>('light')
+  // טעינת theme מ-localStorage אם קיים
+  const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window === 'undefined') return 'light'
+    
+    // טעינת theme מ-localStorage
+    const savedTheme = localStorage.getItem(storageKey) as Theme | null
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      return savedTheme
+    }
+    
+    // בדיקת העדפת מערכת
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    return prefersDark ? 'dark' : 'light'
+  })
   const [mounted, setMounted] = useState(false)
   
-  // שימוש ב-Global App Context
-  const { state: globalState, actions: globalActions } = useGlobalApp()
-  const theme = globalState.theme as Theme
+  // ניהול theme מקומי
+  const [localTheme, setLocalThemeState] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'system'
+    return (localStorage.getItem(storageKey) as Theme) || 'system'
+  })
+  
+  // פונקציה לשינוי theme
+  const setLocalTheme = useCallback((newTheme: Theme) => {
+    setLocalThemeState(newTheme)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(storageKey, newTheme)
+    }
+  }, [storageKey])
+  
+  // שימוש ב-global theme אם קיים
+  let theme = localTheme
+  let setThemeFn = setLocalTheme
+  
+  // טעינת global theme אם אנחנו בתוך GlobalAppProvider
+  try {
+    const { state: globalState, actions } = useGlobalApp()
+    if (globalState?.theme) {
+      theme = globalState.theme as Theme
+    }
+    
+    if (actions?.setTheme) {
+      setThemeFn = (newTheme: Theme) => {
+        actions.setTheme(newTheme)
+      }
+    }
+  } catch (e) {
+    // אם אין GlobalAppProvider, נמשיך עם ה-local theme
+  }
 
   // חישוב ה-theme האמיתי
-  const actualTheme = theme === 'system' ? systemTheme : theme
+  const actualTheme = theme === 'system' ? systemTheme : theme as 'dark' | 'light'
 
   useEffect(() => {
     setMounted(true)
@@ -99,10 +142,8 @@ export function ThemeProvider({
   const value = {
     theme,
     systemTheme,
-    actualTheme,
-    setTheme: (newTheme: Theme) => {
-      globalActions.setTheme(newTheme)
-    },
+    actualTheme: actualTheme as 'dark' | 'light',
+    setTheme: setThemeFn,
   }
 
   if (!mounted) {

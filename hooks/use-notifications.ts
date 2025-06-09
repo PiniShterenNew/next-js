@@ -3,6 +3,11 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
+import { NotificationType } from '@prisma/client'
+import { useSocket } from './use-socket'
+
+// Re-export NotificationType from Prisma
+export { NotificationType }
 
 export interface Notification {
   id: string
@@ -17,13 +22,7 @@ export interface Notification {
   updatedAt: Date
 }
 
-export enum NotificationType {
-  INVOICE_CREATED = 'INVOICE_CREATED',
-  INVOICE_OVERDUE = 'INVOICE_OVERDUE',
-  INVOICE_PAID = 'INVOICE_PAID',
-  PAYMENT_RECEIVED = 'PAYMENT_RECEIVED',
-  REMINDER = 'REMINDER'
-}
+// NotificationType מיובא מ-Prisma
 
 interface UseNotificationsOptions {
   page?: number
@@ -56,7 +55,7 @@ export function useNotifications({
   page = 1,
   limit = 20,
   unreadOnly = false,
-  polling = false, // השנתי לfalse כי אנחנו לא רוצים polling אוטומטי
+  polling = false, 
   pollingInterval = 60000 // דקה אחת
 }: UseNotificationsOptions = {}): UseNotificationsReturn {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -69,6 +68,9 @@ export function useNotifications({
     total: number
     totalPages: number
   } | null>(null)
+  
+  // Socket.io connection
+  const { socket, connected } = useSocket()
 
   // Fetch notifications
   const fetchNotifications = useCallback(async () => {
@@ -229,16 +231,47 @@ export function useNotifications({
     fetchNotifications()
   }, [fetchNotifications])
 
-  // Polling for new notifications (רק אם מפורש מבוקש)
+  // Socket.io event listeners
   useEffect(() => {
-    if (!polling) return
+    if (!socket || !connected) return
+    
+    // Listen for new notifications
+    socket.on('notification', (newNotification: Notification) => {
+      console.log('🔌 Received notification via socket:', newNotification)
+      
+      // Add the new notification to the list if it's not already there
+      setNotifications(prev => {
+        if (prev.some(n => n.id === newNotification.id)) return prev
+        return [newNotification, ...prev]
+      })
+      
+      // Update unread count
+      if (!newNotification.read) {
+        setUnreadCount(prev => prev + 1)
+      }
+      
+      // Show toast notification
+      toast(newNotification.title, {
+        description: newNotification.message,
+      })
+    })
+    
+    return () => {
+      socket.off('notification')
+    }
+  }, [socket, connected])
+  
+  // Fallback to polling if socket is not connected and polling is requested
+  useEffect(() => {
+    if (!polling || (socket && connected)) return
 
+    console.log('🕐 Socket not connected, falling back to polling')
     const interval = setInterval(() => {
       fetchNotifications()
     }, pollingInterval)
 
     return () => clearInterval(interval)
-  }, [polling, pollingInterval, fetchNotifications])
+  }, [polling, pollingInterval, fetchNotifications, socket, connected])
 
   return {
     notifications,
@@ -304,6 +337,7 @@ export function useNotification(id: string) {
 export function useUnreadNotificationsCount() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(false)
+  const { socket, connected } = useSocket()
 
   const fetchUnreadCount = useCallback(async () => {
     try {
@@ -321,13 +355,46 @@ export function useUnreadNotificationsCount() {
     }
   }, [])
 
+  // Initial fetch
   useEffect(() => {
     fetchUnreadCount()
-    
-    // עדכון כל 2 דקות (פחות אגרסיבי)
-    const interval = setInterval(fetchUnreadCount, 120000)
-    return () => clearInterval(interval)
   }, [fetchUnreadCount])
+  
+  // Socket.io event listeners
+  useEffect(() => {
+    if (!socket || !connected) return
+    
+    // Listen for new notifications
+    socket.on('notification', (notification: Notification) => {
+      if (!notification.read) {
+        setUnreadCount(prev => prev + 1)
+      }
+    })
+    
+    // Listen for notification updates
+    socket.on('notification_read', (notificationId: string) => {
+      setUnreadCount(prev => Math.max(0, prev - 1))
+    })
+    
+    socket.on('notifications_read_all', () => {
+      setUnreadCount(0)
+    })
+    
+    return () => {
+      socket.off('notification')
+      socket.off('notification_read')
+      socket.off('notifications_read_all')
+    }
+  }, [socket, connected])
+  
+  // Fallback to polling if socket is not connected
+  useEffect(() => {
+    if (socket && connected) return
+    
+    console.log('🕐 Socket not connected, falling back to polling for unread count')
+    const interval = setInterval(fetchUnreadCount, 120000) // עדכון כל 2 דקות (פחות אגרסיבי)
+    return () => clearInterval(interval)
+  }, [fetchUnreadCount, socket, connected])
 
   return { unreadCount, loading, refetch: fetchUnreadCount }
 }

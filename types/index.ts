@@ -1,4 +1,6 @@
 // User types (for Clerk integration)
+import { NotificationType } from '@prisma/client'
+
 export interface User {
   id: string;
   clerkId: string; // Clerk's user ID
@@ -224,18 +226,7 @@ export interface Notification {
   updatedAt: Date
 }
 
-export enum NotificationType {
-  // Invoice related
-  INVOICE_CREATED = 'INVOICE_CREATED',
-  INVOICE_OVERDUE = 'INVOICE_OVERDUE',
-  INVOICE_PAID = 'INVOICE_PAID',
-  PAYMENT_RECEIVED = 'PAYMENT_RECEIVED',
-  REMINDER = 'REMINDER',
-  CUSTOMER_CREATED = 'CUSTOMER_CREATED',
-  CUSTOMER_UPDATED = 'CUSTOMER_UPDATED',
-  CUSTOMER_DELETED = 'CUSTOMER_DELETED',
-  SETTINGS_UPDATED = 'SETTINGS_UPDATED'
-}
+
 
 export interface CreateNotificationData {
   userId: string

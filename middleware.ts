@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-import createMiddleware from 'next-intl/middleware';
-import { locales, defaultLocale } from './i18n.config';
+import createMiddleware from 'next-intl/middleware'
+import { locales, defaultLocale } from './i18n.config'
 
 // Define which routes require authentication
 const isProtectedRoute = createRouteMatcher([
