@@ -45,7 +45,8 @@ export function useSocket(): UseSocketReturn {
         addTrailingSlash: false,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
-        timeout: 5000
+        timeout: 5000,
+        auth: { userId }
       })
 
       // Set up event listeners
