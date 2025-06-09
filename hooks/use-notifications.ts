@@ -1,4 +1,3 @@
-// hooks/use-notifications.ts - תיקון
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
