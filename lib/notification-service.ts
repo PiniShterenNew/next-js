@@ -1,5 +1,6 @@
 // lib/notification-service.ts - תיקון
 import { db } from '@/lib/db'
+import { getIO } from '@/lib/socket-server'
 import { NotificationType, Customer, UserSettings } from '@prisma/client'
 import { format } from 'date-fns'
 import { he } from 'date-fns/locale'
@@ -32,28 +33,12 @@ export class NotificationService {
       })
 
       console.log(`✅ Notification created: ${notification.id} for user: ${data.userId}`)
-      
-      // Try to emit notification via socket if server is available
+
       try {
-        // Check if socket API is ready
-        const socketCheck = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/socket`)
-        const socketStatus = await socketCheck.json()
-        
-        if (socketStatus.initialized) {
-          // Emit notification directly without passing the socket instance
-          const emitted = ""; 
-          
-          if (emitted) {
-            console.log(`🔌 Notification emitted via socket to user: ${data.userId}`)
-          } else {
-            console.log(`⚠️ Socket initialized but emission failed, will fallback to polling`)
-          }
-        } else {
-          console.log(`⚠️ Socket server not initialized, will fallback to polling`)
-        }
+        const io = getIO()
+        io.to(`user:${data.userId}`).emit('notification', notification)
       } catch (socketError) {
         console.error('⚠️ Could not emit notification via socket:', socketError)
-        // Don't throw error, fallback to polling
       }
       
       return notification
